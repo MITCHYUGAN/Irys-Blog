@@ -1,18 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, PenTool, Wallet } from "lucide-react";
+import { Search, PenTool } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
-export default function Component() {
+export default function Navbar() {
   return (
     <div className="w-full bg-background top-0 fixed border-b-0.5 border-b-neutral-600 text-white grid place-items-center">
       <header className="flex w-[90%] items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-main rounded-lg flex items-center justify-center">
-            <span className="text-black font-bold text-lg">I</span>
+        <Link to={"/"}>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-main rounded-lg flex items-center justify-center">
+              <span className="text-black font-bold text-lg">I</span>
+            </div>
+            <span className="text-xl font-semibold">IrysBlog</span>
           </div>
-          <span className="text-xl font-semibold">IrysBlog</span>
-        </div>
+        </Link>
         <div className="relative flex-1 max-w-md mx-8">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
@@ -32,10 +35,11 @@ export default function Component() {
               Write
             </Button>
           </Link>
-          <Button className="bg-main cursor-pointer text-black font-medium">
+          {/* <Button className="bg-main cursor-pointer text-black font-medium">
             <Wallet className="w-4 h-4 mr-2" />
             Connect Wallet
-          </Button>
+          </Button> */}
+          <ConnectButton />
         </div>
       </header>
     </div>
