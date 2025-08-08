@@ -9,7 +9,14 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { config } from "./lib/wagmiConfig.ts";
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+
+const customTheme = darkTheme({
+  accentColor: '#00FFD1', // your Irys green/blue
+  accentColorForeground: '#000000',
+  borderRadius: 'large',
+  fontStack: 'rounded',
+});
 
 const queryClient = new QueryClient()
 
@@ -28,7 +35,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider theme={customTheme}>
           <RouterProvider router={router} />
         </RainbowKitProvider>
       </QueryClientProvider>
