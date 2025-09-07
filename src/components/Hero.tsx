@@ -23,9 +23,7 @@ const Hero = () => {
               Start Writing
             </Button>
             <Button
-              variant="outline"
-              className="cursor-pointer border-white text-white hover:bg-white hover:text-black px-8 py-5 text-lg bg-transparent"
-            >
+              variant="outline" className="cursor-pointer border-white text-white hover:bg-white hover:text-black px-8 py-5 text-lg bg-transparent">
               Learn More
             </Button>
           </div>
