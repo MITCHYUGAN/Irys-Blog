@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { getIrysUploader } from "@/lib/irys";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 
 const Write = () => {
   const [titleInput, setTitleInput] = useState("");

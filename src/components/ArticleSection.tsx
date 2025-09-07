@@ -16,6 +16,7 @@ import {
 import { Sidebar } from "./SideBar";
 import { getPost } from "@/lib/graphql";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // interface Article {
 //   id: string;
@@ -118,6 +119,7 @@ export function ArticlesSection() {
 
   const [ posts, setPosts ] = useState<Article[]>([]);
   const [ loading, setLoading ] = useState(true);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -248,8 +250,9 @@ export function ArticlesSection() {
                     </div>
                     <Button
                       variant="ghost"
-                      className="text-teal-400 hover:text-teal-300 p-0 h-auto font-medium"
+                      className="text-teal-400 hover:text-teal-300 p-0 h-auto font-medium cursor-pointer"
                       style={{ color: "rgb(81, 255, 214)" }}
+                      onClick={() => navigate(`/post/${article.id}`)}
                     >
                       Read More
                       <ArrowRight className="w-4 h-4 ml-1" />
