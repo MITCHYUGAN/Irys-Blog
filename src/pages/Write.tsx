@@ -87,7 +87,7 @@ const Write = () => {
           </label>
           <Button
             type="submit"
-            className="bg-main cursor-pointer hover:bg-main text-black font-medium px-8 py-5 text-lg"
+            className="bg-main cursor-pointer hover:bg-main text-black font-medium px-10 py-8 text-2xl"
           >
             Store on Irys
           </Button>

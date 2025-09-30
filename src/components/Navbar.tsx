@@ -13,7 +13,7 @@ export default function Navbar() {
             <div className="w-8 h-8 bg-main rounded-lg flex items-center justify-center">
               <span className="text-black font-bold text-lg">I</span>
             </div>
-            <span className="text-xl font-semibold">IrysBlog</span>
+            <span className="text-xl font-semibold">IrysBlogerr</span>
           </div>
         </Link>
         <div className="relative flex-1 max-w-md mx-8">
