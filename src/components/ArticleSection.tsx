@@ -152,7 +152,7 @@ export function ArticlesSection() {
 
   return (
     <section className="px-6 flex flex-col items-center py-12 text-white font-oswald">
-      <div className="w-[90%] flex">
+      <div className="w-[90%] flex md:flex-row flex-col">
         <Sidebar />
         <div className="max-w-5xl mx-auto">
           {/* Header */}

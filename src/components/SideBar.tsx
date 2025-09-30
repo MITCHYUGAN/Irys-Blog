@@ -15,12 +15,12 @@ interface Tag {
 }
 
 const categories: Category[] = [
-  {
-    id: "all",
-    name: "All Categories",
-    icon: null,
-    isActive: true
-  },
+  // {
+  //   id: "all",
+  //   name: "All Categories",
+  //   icon: null,
+  //   isActive: true
+  // },
   {
     id: "development",
     name: "Development",
@@ -53,16 +53,16 @@ const trendingTags: Tag[] = [
 
 export function Sidebar() {
   return (
-    <aside className="w-90 p-6 space-y-6 font-oswald">
+    <aside className="w-full md:w-90 md:p-6 space-y-6 font-oswald">
       {/* Categories Section */}
-      <div className="bg-gray-800/50 rounded-lg p-6">
-        <h3 className="text-xl font-bold text-white mb-6">Categories</h3>
-        <div className="space-y-3">
+      <div className="bg-gray-800/50 rounded-lg p-5">
+        <h3 className="text-1xl md:text-xl font-bold text-white mb-3">Categories</h3>
+        <div className="flex flex-wrap md:flex-col items-center md:items-start gap-1">
           {categories.map((category) => (
             <Button
               key={category.id}
               variant="ghost"
-              className={`w-full justify-start gap-3 h-auto py-3 px-3 text-left font-medium ${
+              className={` justify-start gap-1 h-auto px-2 py-1 md:py-3 md:px-3 text-left font-medium ${
                 category.isActive
                   ? 'text-white bg-transparent hover:bg-transparent'
                   : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
@@ -86,14 +86,14 @@ export function Sidebar() {
 
       {/* Trending Tags Section */}
       <div className="bg-gray-800/50 rounded-lg p-6">
-        <h3 className="text-xl font-bold text-white mb-6">Trending Tags</h3>
+        <h3 className="text-1xl md:text-xl font-bold text-white mb-3">Trending Tags</h3>
         <div className="flex flex-wrap gap-3">
           {trendingTags.map((tag) => (
             <Button
               key={tag.id}
               variant="ghost"
               size="sm"
-              className="bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 hover:text-white rounded-full px-4 py-2 h-auto font-medium"
+              className="bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 hover:text-white rounded-full px-3 py-1 md:px-4 md:py-2 h-auto font-medium"
             >
               {tag.name}
             </Button>
