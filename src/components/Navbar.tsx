@@ -6,17 +6,17 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Navbar() {
   return (
-    <div className="w-full bg-background top-0 fixed border-b-0.5 border-b-neutral-600 text-white grid place-items-center">
-      <header className="flex w-[90%] items-center justify-between px-6 py-4">
+    <div className="w-full bg-background top-0 fixed border-b-0.5 border-b-neutral-600 text-white grid place-items-center z-1">
+      <header className="flex w-full md:w-[90%] items-center justify-between px-6 py-4">
         <Link to={"/"}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-main rounded-lg flex items-center justify-center">
               <span className="text-black font-bold text-lg">I</span>
             </div>
-            <span className="text-xl font-semibold">IrysBlogerr</span>
+            <span className="md:text-xl font-semibold">IrysBlogerr</span>
           </div>
         </Link>
-        <div className="relative flex-1 max-w-md mx-8">
+        <div className="relative flex-1 max-w-md mx-3">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             type="text"
@@ -25,7 +25,7 @@ export default function Navbar() {
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="md:flex items-center gap-3">
           <Link to={"/write"}>
             <Button
               variant="ghost"
@@ -39,7 +39,9 @@ export default function Navbar() {
             <Wallet className="w-4 h-4 mr-2" />
             Connect Wallet
           </Button> */}
-          <ConnectButton />
+          <div className="md:block hidden">
+            <ConnectButton />
+          </div>
         </div>
       </header>
     </div>

@@ -17,6 +17,9 @@ import { Sidebar } from "./SideBar";
 import { getPost } from "@/lib/graphql";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import DOMPurify from 'dompurify';
 
 // interface Article {
 //   id: string;
@@ -38,8 +41,7 @@ import { useNavigate } from "react-router-dom";
 
 interface Article {
   id: string;
-  title: string;
-  body: string;
+  markdown: string;
   author: string;
   createdAt: number;
   likes: number;
@@ -127,13 +129,12 @@ export function ArticlesSection() {
         const fetchedPosts = await getPost();
         const formmattedPosts: Article[] = fetchedPosts.map((post: any) => ({
           id: post.id,
-          title: post.title,
-          body: post.body,
-          author: post.author.slice(0, 6) + "..." + post.author.slice(-4), // Truncate wallet for now
-          createdAt: post.createdAt,
+          markdown: post.markdown,
+          author: post.tags.find((t: any) => t.name === 'author')?.value.slice(0, 6) + "..." + post.tags.find((t: any) => t.name === 'author')?.value.slice(-4) || 'Anonymous',
+          createdAt: post.timestamp,
           likes: 0, // v2 feature
           comments: 0, // v2 feature
-          readTime: `${Math.ceil(post.body.split(" ").length / 200)} min read`,
+          readTime: `${Math.ceil(post.markdown.split(" ").length / 200)} min read`,
         }));
         setPosts(formmattedPosts)
       } catch (error) {
@@ -147,24 +148,24 @@ export function ArticlesSection() {
   }, [])
 
   if (loading) {
-    return <div>Loading articles...</div>;
+    return <div className="text-center py-12">Loading articles...</div>;
   }
 
   return (
     <section className="px-6 flex flex-col items-center py-12 text-white font-oswald">
       <div className="w-[90%] flex md:flex-row flex-col">
         <Sidebar />
-        <div className="max-w-5xl mx-auto">
+        <div className="md:max-w-5xl w-full mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mt-12 mb-6">
             <div className="flex gap-3.5 items-center">
-              <h2 className="text-3xl font-bold">Latest Articles</h2>
-              <p className="text-gray-400 mt-1">
+              <h2 className="md:text-3xl text-2xl font-bold">Latest Articles</h2>
+              <p className="text-gray-400 mt-1 hidden md:block">
                 {posts.length} articles found
               </p>
             </div>
             <Select defaultValue="recent">
-              <SelectTrigger className="w-48 bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="md:w-40 w-34 bg-gray-800 border-gray-700 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
@@ -182,19 +183,9 @@ export function ArticlesSection() {
                 key={article.id}
                 className="bg-gray-800/90 rounded-lg overflow-hidden hover:bg-gray-800/70 transition-colors"
               >
-                {/* Featured Image - Only for first article
-                {index === 0 && article.image && (
-                  <div className="h-48 bg-gray-700 flex items-center justify-center">
-                    <img
-                      src={article.image || "/placeholder.svg"}
-                      alt=""
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                  </div>
-                )} */}
 
                 <div className="p-6">
-                  {/* Author Info */}
+                 {/* Author Info */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div
@@ -205,32 +196,28 @@ export function ArticlesSection() {
                       </div>
                       <div>
                         <p className="font-semibold">{article.author}</p>
-                        <p className="text-gray-400 text-sm">{article.createdAt}</p>
+                        <p className="text-gray-400 text-sm">{new Date(article.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium`}
-                      >
-                        Blog
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-400 hover:text-white p-1"
-                      >
+                      <span className="px-3 py-1 rounded-full text-xs font-medium">Blog</span>
+                      <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white p-1">
                         <Bookmark className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
 
-                  {/* Article Content */}
-                  <h3 className="text-xl font-bold mb-3 leading-tight">
-                    {article.title}
-                  </h3>
-                  <p className="text-gray-300 mb-4 leading-relaxed">
-                    {article.body.slice(0, 100)}
-                  </p>
+                  {/* Markdown Preview Snippet */}
+                  <div className="prose prose-invert max-w-none mb-4 leading-relaxed text-gray-300 text-sm">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]} 
+                      components={{
+                        a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline" />,
+                      }}
+                    >
+                      {DOMPurify.sanitize(article.markdown.slice(0, 300) + '...')}
+                    </ReactMarkdown>
+                  </div>
 
                   {/* Article Stats */}
                   <div className="flex items-center justify-between">
