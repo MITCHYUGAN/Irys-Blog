@@ -1,43 +1,40 @@
-"use client";
+"use client"
 
-import { useParams } from "react-router-dom";
-import { getPost } from "@/lib/graphql";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Bookmark, Clock, Heart, MessageCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import DOMPurify from "dompurify";
+import { useParams } from "react-router-dom"
+import { getPost } from "@/lib/graphql"
+import { useEffect, useState } from "react"
+import { ArrowLeft, Bookmark, Clock, Heart, MessageCircle, Share2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import DOMPurify from "dompurify"
+import Navbar from "./Navbar"
 
 interface Article {
-  id: string;
-  markdown: string;
-  author: string;
-  createdAt: number;
-  likes: number;
-  comments: number;
-  readTime: string;
+  id: string
+  markdown: string
+  author: string
+  createdAt: number
+  likes: number
+  comments: number
+  readTime: string
 }
 
 export function PostDetail() {
-  const { id } = useParams<{ id: string }>();
-  const [post, setPost] = useState<Article | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { id } = useParams<{ id: string }>()
+  const [post, setPost] = useState<Article | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const fetchedPosts = await getPost();
-        const foundPost = fetchedPosts.find((p: any) => p.id === id);
+        const fetchedPosts = await getPost()
+        const foundPost = fetchedPosts.find((p: any) => p.id === id)
         if (foundPost) {
           const author =
-            foundPost.tags
-              .find((t: any) => t.name === "author")
-              ?.value.slice(0, 6) +
+            foundPost.tags.find((t: any) => t.name === "author")?.value.slice(0, 6) +
               "..." +
-              foundPost.tags
-                .find((t: any) => t.name === "author")
-                ?.value.slice(-4) || "Anonymous";
+              foundPost.tags.find((t: any) => t.name === "author")?.value.slice(-4) || "Anonymous"
           setPost({
             id: foundPost.id,
             markdown: foundPost.markdown,
@@ -45,85 +42,121 @@ export function PostDetail() {
             createdAt: foundPost.timestamp,
             likes: 0,
             comments: 0,
-            readTime: `${Math.ceil(
-              foundPost.markdown.split(" ").length / 200
-            )} min read`,
-          });
+            readTime: `${Math.ceil(foundPost.markdown.split(" ").length / 200)} min read`,
+          })
         }
       } catch (error) {
-        console.error("Error fetching post:", error);
+        console.error("Error fetching post:", error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    if (id) fetchPost();
-  }, [id]);
+    if (id) fetchPost()
+  }, [id])
 
   if (loading) {
-    return <div className="text-white text-center py-12">Loading post...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-main border-t-transparent mb-4"></div>
+          <p className="text-gray-400 font-display-inter">Loading post...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!post) {
-    return <div className="text-white text-center py-12">Post not found</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold mb-4 font-display">Post not found</h2>
+          <Button
+            variant="ghost"
+            className="text-main hover:text-main/80 font-display-inter"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" /> Go Back
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <section className="px-6 py-12 text-white font-oswald min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <Button
-          variant="ghost"
-          className="mb-6 text-teal-400 hover:text-teal-300"
-          onClick={() => window.history.back()}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Articles
-        </Button>
-        <article className="bg-gray-800/90 rounded-lg p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-700">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold text-sm bg-teal-400">
-                {post.author.slice(0, 2).toUpperCase()}
+    <>
+      <Navbar />
+      <section className="px-6 py-12 mt-20 text-white font-display-inter min-h-screen">
+        <div className="max-w-4xl mx-auto">
+          <Button
+            variant="ghost"
+            className="mb-8 text-main hover:text-main/80 hover:bg-main/10 transition-all font-display-inter"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Articles
+          </Button>
+
+          <article className="bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden border border-gray-700/50 shadow-2xl">
+            <div className="p-8 md:p-10">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-700/50">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center text-black font-bold shadow-lg bg-main">
+                    {post.author.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-lg text-white">{post.author}</p>
+                    <p className="text-gray-400 text-sm">
+                      {new Date(post.createdAt).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-gray-400 text-sm flex items-center gap-2 bg-gray-700/30 px-3 py-2 rounded-lg">
+                    <Clock className="w-4 h-4" />
+                    {post.readTime}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
+                    title="Bookmark"
+                  >
+                    <Bookmark className="w-5 h-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
+                    title="Share"
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
-              <div>
-                <p className="font-semibold">{post.author}</p>
-                <p className="text-gray-400 text-sm">
-                  {new Date(post.createdAt).toLocaleDateString()}
-                </p>
+
+              <div className="markdown-content prose prose-invert max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{DOMPurify.sanitize(post.markdown)}</ReactMarkdown>
+              </div>
+
+              <div className="flex items-center gap-8 text-gray-400 mt-10 pt-6 border-t border-gray-700/50">
+                <button className="flex items-center gap-2 hover:text-main transition-colors group">
+                  <Heart className="w-5 h-5 group-hover:fill-main group-hover:text-main transition-all" />
+                  <span className="text-sm font-medium">{post.likes}</span>
+                </button>
+                <button className="flex items-center gap-2 hover:text-main transition-colors">
+                  <MessageCircle className="w-5 h-5" />
+                  <span className="text-sm font-medium">{post.comments}</span>
+                </button>
               </div>
             </div>
-            <div className="flex items-center gap-9">
-              <div className="text-gray-400 text-sm">
-                <Clock className="w-4 h-4 inline mr-1" />
-                {post.readTime}
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gray-400 hover:text-white p-1"
-                title="Bookmark"
-              >
-                <Bookmark className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-          <div className="markdown-content">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {DOMPurify.sanitize(post.markdown)}
-            </ReactMarkdown>
-          </div>
-          <div className="flex items-center gap-6 text-gray-400">
-            <div className="flex items-center gap-2">
-              <Heart className="w-4 h-4" />
-              <span className="text-sm">{post.likes}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MessageCircle className="w-4 h-4" />
-              <span className="text-sm">{post.comments}</span>
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-  );
+          </article>
+        </div>
+      </section>
+    </>
+  )
 }

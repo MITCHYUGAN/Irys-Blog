@@ -55,22 +55,28 @@ export function ArticlesSection() {
   }, [])
 
   if (loading) {
-    return <div className="text-center py-12 text-white">Loading articles...</div>
+    return (
+      <div className="text-center py-20 text-white">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-main border-t-transparent mb-4"></div>
+        <p className="text-gray-400 font-display-inter">Loading articles...</p>
+      </div>
+    )
   }
 
   return (
     <section className="px-6 flex flex-col items-center py-12 text-white font-oswald">
-      <div className="w-[90%] flex md:flex-row flex-col">
+      <div className="w-[90%] flex md:flex-row flex-col gap-8">
         <Sidebar />
         <div className="md:max-w-5xl w-full mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mt-12 mb-6">
-            <div className="flex gap-3.5 items-center">
-              <h2 className="md:text-3xl text-2xl font-bold">Latest Articles</h2>
-              <p className="text-gray-400 mt-1 hidden md:block">{posts.length} articles found</p>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex gap-4 items-center">
+              <h2 className="md:text-4xl text-3xl font-bold font-display">Latest Articles</h2>
+              <p className="text-gray-400 mt-1 hidden md:block font-display-inter text-sm bg-gray-800/50 px-3 py-1 rounded-full">
+                {posts.length} articles
+              </p>
             </div>
             <Select defaultValue="recent">
-              <SelectTrigger className="md:w-40 w-34 bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="md:w-44 w-36 bg-gray-800/50 border-gray-700 hover:border-main/50 text-white transition-colors">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
@@ -81,49 +87,58 @@ export function ArticlesSection() {
             </Select>
           </div>
 
-          {/* Articles Grid */}
           <div className="space-y-6">
             {posts.map((article) => {
               return (
                 <article
                   key={article.id}
-                  className="bg-gray-800/90 rounded-lg overflow-hidden hover:bg-gray-800/70 transition-colors"
+                  className="bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden hover:from-gray-800/70 hover:to-gray-800/50 transition-all duration-300 border border-gray-700/50 hover:border-main/30 hover:shadow-lg hover:shadow-main/10 group"
                 >
                   <div className="p-6">
-                    {/* Author Info */}
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-5">
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-10 h-10 rounded-full flex items-center justify-center text-black font-bold text-sm"
+                          className="w-11 h-11 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-lg"
                           style={{ backgroundColor: "rgb(81, 255, 214)" }}
                         >
                           {article.author.slice(0, 2).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-semibold">{article.author}</p>
-                          <p className="text-gray-400 text-sm">{new Date(article.createdAt).toLocaleDateString()}</p>
+                          <p className="font-semibold font-display-inter text-white">{article.author}</p>
+                          <p className="text-gray-400 text-sm font-display-inter">
+                            {new Date(article.createdAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 rounded-full text-xs font-medium">Blog</span>
-                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white p-1">
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-main/10 text-main border border-main/20">
+                          Blog
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
+                        >
                           <Bookmark className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
 
-                    <div className="markdown-content mb-4">
+                    <div className="markdown-content mb-5 text-gray-300 line-clamp-3">
                       <ReactMarkdown>{article.markdown.slice(0, 300) + "..."}</ReactMarkdown>
                     </div>
 
-                    {/* Article Stats */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-6 text-gray-400">
-                        <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
+                      <div className="flex items-center gap-6 text-gray-400 font-display-inter">
+                        <div className="flex items-center gap-2 hover:text-main transition-colors cursor-pointer">
                           <Heart className="w-4 h-4" />
                           <span className="text-sm">{article.likes}</span>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 hover:text-main transition-colors cursor-pointer">
                           <MessageCircle className="w-4 h-4" />
                           <span className="text-sm">{article.comments}</span>
                         </div>
@@ -134,8 +149,7 @@ export function ArticlesSection() {
                       </div>
                       <Button
                         variant="ghost"
-                        className="text-teal-400 hover:text-teal-300 p-0 h-auto font-medium cursor-pointer"
-                        style={{ color: "rgb(81, 255, 214)" }}
+                        className="text-main hover:text-main/80 hover:bg-main/10 p-0 h-auto font-medium cursor-pointer font-display-inter group-hover:translate-x-1 transition-transform"
                         onClick={() => navigate(`/post/${article.id}`)}
                       >
                         Read More

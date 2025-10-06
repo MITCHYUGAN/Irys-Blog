@@ -7,9 +7,11 @@ import { useAccount } from "wagmi"
 import "easymde/dist/easymde.min.css"
 import { getIrysUploader } from "@/lib/irys"
 import { useNavigate } from "react-router-dom"
+import { Upload, Loader2 } from "lucide-react"
 
 const SimpleMd = () => {
   const [bodyInput, setBodyInput] = useState("# How to ...")
+  const [isUploading, setIsUploading] = useState(false)
   const { address } = useAccount()
   const navigate = useNavigate()
 
@@ -25,6 +27,8 @@ const SimpleMd = () => {
     }
 
     console.log("BodyInput", bodyInput)
+
+    setIsUploading(true)
 
     try {
       const irys = await getIrysUploader()
@@ -47,23 +51,40 @@ const SimpleMd = () => {
     } catch (error) {
       console.error("Error uploading data ", error)
       alert("Error uploading post. Check console for details.")
+    } finally {
+      setIsUploading(false)
     }
   }
 
   return (
-    <section className="w-[80%] flex flex-col items-center">
+    <section className="w-full max-w-[85%] px-6 flex flex-col items-center pb-20">
       <form
-        className="w-full flex flex-col items-center gap-20"
+        className="w-full flex flex-col items-center gap-8"
         onSubmit={(e) => {
           e.preventDefault()
           uploadDataToIrys()
         }}
       >
-        <div className="editor-wrapper w-full">
-          <SimpleMdeReact value={bodyInput} onChange={setBodyInput} />
+        <div className="editor-wrapper w-full bg-gray-800/30 rounded-xl p-6 border border-gray-700/50 shadow-xl">
+          <SimpleMdeReact value={bodyInput} onChange={setBodyInput} style={{zIndex: '1Z'}} />
         </div>
-        <Button type="submit" className="bg-main btn-store_on_irys text-black font-medium px-10 py-8 text-2xl cursor-pointer">
-          Store on Irys
+
+        <Button
+          type="submit"
+          disabled={isUploading}
+          className="bg-main hover:bg-main/90 btn-store_on_irys text-black font-semibold px-12 py-7 text-xl rounded-lg shadow-lg shadow-main/20 hover:shadow-xl hover:shadow-main/30 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 font-display-inter"
+        >
+          {isUploading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Publishing...
+            </>
+          ) : (
+            <>
+              <Upload className="w-5 h-5 mr-2" />
+              Publish to Irys
+            </>
+          )}
         </Button>
       </form>
     </section>

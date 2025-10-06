@@ -1,25 +1,32 @@
-"use client";
+"use client"
 
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
-import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
-import { X, FileText, Bookmark, Heart, MessageCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ConnectButton } from "@rainbow-me/rainbowkit"
+import { useAccount } from "wagmi"
+import { Button } from "./ui/button"
+import { useEffect, useState } from "react"
+import { X, FileText, Bookmark, Heart, MessageCircle } from "lucide-react"
+import { Link } from "react-router-dom"
 
-const SideNav = () => {
-  const { address } = useAccount();
-  const [navToggle, setNavToggle] = useState(false);
+interface SideNavProps {
+  onToggle?: (isOpen: boolean) => void
+}
+
+const SideNav = ({ onToggle }: SideNavProps) => {
+  const { address } = useAccount()
+  const [navToggle, setNavToggle] = useState(false)
 
   const navtoggle = () => {
-    setNavToggle(!navToggle);
-  };
+    const newToggleState = !navToggle
+    setNavToggle(newToggleState)
+    onToggle?.(newToggleState)
+  }
 
   useEffect(() => {
     if (!address && navToggle) {
-      setNavToggle(false);
+      setNavToggle(false)
+      onToggle?.(false)
     }
-  }, [address, navToggle]);
+  }, [address, navToggle, onToggle])
 
   return (
     <div className="">
@@ -37,14 +44,14 @@ const SideNav = () => {
       {/* Backdrop overlay */}
       {navToggle && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] transition-opacity duration-300"
           onClick={navtoggle}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed right-0 top-0 h-screen w-80 bg-gray-900/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-50 transition-transform duration-300 ease-in-out ${
+        className={`fixed right-0 top-0 h-screen w-80 bg-gray-900/95 backdrop-blur-md border-l border-gray-700 flex flex-col z-[70] transition-transform duration-300 ease-in-out ${
           navToggle ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -60,15 +67,9 @@ const SideNav = () => {
         {/* Sidebar content */}
         <div className="flex flex-col items-center justify-center flex-1 px-6 gap-8">
           <ConnectButton.Custom>
-            {({
-              account,
-              chain,
-              openAccountModal,
-              openChainModal,
-              mounted,
-            }) => {
-              const ready = mounted;
-              const connected = ready && account && chain;
+            {({ account, chain, openAccountModal, openChainModal, mounted }) => {
+              const ready = mounted
+              const connected = ready && account && chain
 
               return (
                 <div className="w-full flex flex-col items-center gap-6">
@@ -87,23 +88,10 @@ const SideNav = () => {
                               className="w-6 h-6"
                             />
                           )}
-                          <span className="text-white font-medium font-display-inter">
-                            {chain.name}
-                          </span>
+                          <span className="text-white font-medium font-display-inter">{chain.name}</span>
                         </div>
-                        <svg
-                          width="12"
-                          height="7"
-                          viewBox="0 0 12 7"
-                          fill="none"
-                          className="text-gray-400"
-                        >
-                          <path
-                            d="M1 1L6 6L11 1"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
+                        <svg width="12" height="7" viewBox="0 0 12 7" fill="none" className="text-gray-400">
+                          <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                       </button>
 
@@ -123,30 +111,17 @@ const SideNav = () => {
                           <button className="text-white font-semibold text-lg font-display-inter hover:text-main transition-colors">
                             {account.displayName}
                           </button>
-                          <svg
-                            width="12"
-                            height="7"
-                            viewBox="0 0 12 7"
-                            fill="none"
-                            className="text-gray-400"
-                          >
-                            <path
-                              d="M1 1L6 6L11 1"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                            />
+                          <svg width="12" height="7" viewBox="0 0 12 7" fill="none" className="text-gray-400">
+                            <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                           </svg>
                         </div>
 
-                        <p className="text-gray-400 text-sm mt-1">
-                          Your Profile
-                        </p>
+                        <p className="text-gray-400 text-sm mt-1">Your Profile</p>
                       </div>
                     </>
                   )}
                 </div>
-              );
+              )
             }}
           </ConnectButton.Custom>
 
@@ -186,7 +161,7 @@ const SideNav = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SideNav;
+export default SideNav
