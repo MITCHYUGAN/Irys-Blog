@@ -8,7 +8,7 @@ import { X, FileText, Bookmark, Heart, MessageCircle } from "lucide-react";
 
 const SideNav = () => {
   const { address } = useAccount();
-  const [navToggle, setNavToggle] = useState(true);
+  const [navToggle, setNavToggle] = useState(false);
 
   const navtoggle = () => {
     setNavToggle(!navToggle);
