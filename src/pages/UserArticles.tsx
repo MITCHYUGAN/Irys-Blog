@@ -1,5 +1,4 @@
 "use client"
-
 import Navbar from "@/components/Navbar"
 import { Button } from "@/components/ui/button"
 import { getUserPost } from "@/lib/userarticlegraphql"
@@ -53,7 +52,7 @@ const UserArticles = () => {
     }
 
     fetchUserPosts()
-  }, [])
+  }, [address])
 
   if (loading) {
     return (
