@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, PenTool } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import SideNav from "./SideNav";
 
 export default function Navbar() {
   return (
@@ -16,7 +16,7 @@ export default function Navbar() {
             <span className="md:text-xl font-semibold">IrysBlogerr</span>
           </div>
         </Link>
-        <div className="relative flex-1 max-w-md mx-3">
+        <div className="relative flex-1 max-w-md mx-3 lg:flex hidden">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             type="text"
@@ -39,9 +39,7 @@ export default function Navbar() {
             <Wallet className="w-4 h-4 mr-2" />
             Connect Wallet
           </Button> */}
-          <div className="md:block hidden">
-            <ConnectButton />
-          </div>
+        <SideNav />
         </div>
       </header>
     </div>

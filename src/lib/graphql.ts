@@ -22,7 +22,7 @@ const fromTimestamp = Date.now() - (30 * 24 * 60 * 60 * 1000);  // 30 days ago
     query {
       transactions(
         tags: [
-          { name: "application-id", values: ["test-blog1"] }
+          { name: "application-id", values: ["test-blog2"] }
           { name: "type", values: ["post"] }
         ],
         timestamp: { from: ${fromTimestamp}, to: ${toTimestamp} },
@@ -47,7 +47,7 @@ const fromTimestamp = Date.now() - (30 * 24 * 60 * 60 * 1000);  // 30 days ago
   const posts = await Promise.all(
     edges.map(async (edge: any) => {
       const { id } = edge.node;
-      const contentResponse = await axios.get(`${GATEWAY_URL}/${id}`);
+      const contentResponse = await axios.get(`${GATEWAY_URL}/${id}`, { responseType: 'text' });
       return {
         id,
         markdown: contentResponse.data,
