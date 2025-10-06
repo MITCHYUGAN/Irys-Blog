@@ -7,6 +7,7 @@ import { ArrowRight, Bookmark, Clock, Heart, MessageCircle, FileText, User } fro
 import { useEffect, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import { useNavigate } from "react-router-dom"
+import { useAccount } from "wagmi"
 
 interface Article {
   id: string
@@ -21,12 +22,13 @@ interface Article {
 const UserArticles = () => {
   const [posts, setPosts] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
+  const { address } = useAccount()
   const navigate = useNavigate()
 
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
-        const fetchedPosts = await getUserPost()
+        const fetchedPosts = await getUserPost(address)
         const formattedPosts: Article[] = fetchedPosts.map((post: any) => {
           const author =
             post.tags.find((t: any) => t.name === "author")?.value.slice(0, 6) +

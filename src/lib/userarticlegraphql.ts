@@ -14,13 +14,14 @@ export async function queryGraphQL(query: string) {
   return response.data.data.transactions;
 }
 
-export async function getUserPost() {
+export async function getUserPost(address?: string) {
+const userAddress = address;  // Default or from param
   const fromTimestamp = Date.now() - 30 * 24 * 60 * 60 * 1000; // 30 days ago
   const toTimestamp = Date.now(); // Now
   const query = `
     query {
       transactions(
-        owners: ["0xabfa823473a2d62e10c74c25e2d0f77b6d6325c9"]
+        owners: ["${userAddress}"]
         tags: [
           { name: "application-id", values: ["test-blog3"] }
           { name: "type", values: ["post"] }
