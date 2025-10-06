@@ -22,7 +22,7 @@ export async function getPost() {
     query {
       transactions(
         tags: [
-          { name: "application-id", values: ["test-blog2"] }
+          { name: "application-id", values: ["test-blog3"] }
           { name: "type", values: ["post"] }
         ],
         timestamp: { from: ${fromTimestamp}, to: ${toTimestamp} },

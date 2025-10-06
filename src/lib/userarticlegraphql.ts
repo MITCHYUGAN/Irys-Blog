@@ -22,7 +22,7 @@ export async function getUserPost() {
       transactions(
         owners: ["0xabfa823473a2d62e10c74c25e2d0f77b6d6325c9"]
         tags: [
-          { name: "application-id", values: ["test-blog2"] }
+          { name: "application-id", values: ["test-blog3"] }
           { name: "type", values: ["post"] }
         ],
         timestamp: { from: ${fromTimestamp}, to: ${toTimestamp} },
