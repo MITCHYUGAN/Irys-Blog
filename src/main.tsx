@@ -12,6 +12,7 @@ import { config } from "./lib/wagmiConfig.ts";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { PostDetail } from "./components/PostDetail.tsx";
 import SimpleMd from "./components/SimpleMd.tsx";
+import UserArticles from "./pages/UserArticles.tsx";
 
 const customTheme = darkTheme({
   accentColor: "#00FFD1", // your Irys green/blue
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
         </div>
       </div>
     ),
+  },
+  {
+    path: "/me/articles",
+    element: <div className="app-container"><UserArticles /></div>,
   },
   {
     path: "/post/:id",

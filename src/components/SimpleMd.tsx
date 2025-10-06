@@ -9,7 +9,7 @@ import { getIrysUploader } from "@/lib/irys"
 import { useNavigate } from "react-router-dom"
 
 const SimpleMd = () => {
-  const [bodyInput, setBodyInput] = useState("")
+  const [bodyInput, setBodyInput] = useState("# How to ...")
   const { address } = useAccount()
   const navigate = useNavigate()
 

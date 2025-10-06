@@ -20,17 +20,21 @@ const Hero = () => {
         {/* Call to Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
           <Link to={"/write"}>
-            <Button className="bg-main cursor-pointer hover:bg-main text-black font-medium px-8 py-5 text-lg">
+            {/* <Button className="bg-main cursor-pointer hover:bg-main text-black font-medium px-8 py-5 text-lg ">
+              <Rocket className="w-5 h-5 mr-2" />
+              Start Writing
+            </Button> */}
+            <Button className="bg-main btn-store_on_irys text-black font-medium px-10 py-8 text-2xl cursor-pointer">
               <Rocket className="w-5 h-5 mr-2" />
               Start Writing
             </Button>
           </Link>
-          <Button
+          {/* <Button
             variant="outline"
             className="cursor-pointer border-white text-white hover:bg-white hover:text-black px-8 py-5 text-lg bg-transparent"
           >
             Learn More
-          </Button>
+          </Button> */}
         </div>
       </div>
     </main>

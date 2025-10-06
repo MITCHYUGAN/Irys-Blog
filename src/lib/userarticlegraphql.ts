@@ -14,20 +14,19 @@ export async function queryGraphQL(query: string) {
   return response.data.data.transactions;
 }
 
-// Fetch all posts (latest 10)
-export async function getPost() {
+export async function getUserPost() {
   const fromTimestamp = Date.now() - 30 * 24 * 60 * 60 * 1000; // 30 days ago
   const toTimestamp = Date.now(); // Now
   const query = `
     query {
       transactions(
+        owners: ["0xabfa823473a2d62e10c74c25e2d0f77b6d6325c9"]
         tags: [
           { name: "application-id", values: ["test-blog2"] }
           { name: "type", values: ["post"] }
         ],
         timestamp: { from: ${fromTimestamp}, to: ${toTimestamp} },
         order: DESC,
-        limit: 10
       ) {
         edges {
           node {

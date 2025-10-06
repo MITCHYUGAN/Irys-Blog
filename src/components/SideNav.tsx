@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import { X, FileText, Bookmark, Heart, MessageCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const SideNav = () => {
   const { address } = useAccount();
@@ -115,11 +116,11 @@ const SideNav = () => {
                           {account.address?.slice(0, 2).toUpperCase()}
                         </div>
 
-                        <div className="flex items-center gap-2 hover:bg-black cursor-pointer" onClick={openAccountModal}>
-                          <button
-                            
-                            className="text-white font-semibold text-lg font-display-inter hover:text-main transition-colors"
-                          >
+                        <div
+                          className="flex items-center gap-2 hover:bg-black cursor-pointer"
+                          onClick={openAccountModal}
+                        >
+                          <button className="text-white font-semibold text-lg font-display-inter hover:text-main transition-colors">
                             {account.displayName}
                           </button>
                           <svg
@@ -151,13 +152,15 @@ const SideNav = () => {
 
           {/* Navigation buttons */}
           <div className="flex flex-col gap-3 w-full">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
-            >
-              <FileText className="w-5 h-5 mr-3" />
-              My Articles <span className="text-[10px]">(Coming soon...)</span>
-            </Button>
+            <Link to={"/me/articles"}>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
+              >
+                <FileText className="w-5 h-5 mr-3" />
+                My Articles{" "}
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
