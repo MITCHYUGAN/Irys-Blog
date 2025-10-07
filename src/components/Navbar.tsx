@@ -13,7 +13,7 @@ export default function Navbar() {
 
   return (
     <div
-      className={`w-full bg-background/95 backdrop-blur-md top-0 fixed border-b border-gray-800/50 text-white grid place-items-center shadow-lg shadow-black/10 ${isSidebarOpen ? "z-50" : "z-0"}`}
+      className={`w-full bg-background/95 backdrop-blur-md top-0 fixed border-b border-gray-800/50 text-white grid place-items-center shadow-lg shadow-black/10 ${isSidebarOpen ? "z-50" : "z-10"}`}
     >
       <header className="flex w-full md:w-[90%] items-center justify-between px-6 py-4">
         <Link to={"/"}>

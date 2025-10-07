@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import SimpleMdeReact from "react-simplemde-editor"
 import { useAccount } from "wagmi"
 import "easymde/dist/easymde.min.css"
@@ -12,8 +12,31 @@ import { Upload, Loader2 } from "lucide-react"
 const SimpleMd = () => {
   const [bodyInput, setBodyInput] = useState("# How to ...")
   const [isUploading, setIsUploading] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const { address } = useAccount()
   const navigate = useNavigate()
+  const editorWrapperRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const editorWrapper = editorWrapperRef.current
+    if (!editorWrapper) return
+
+    // Create a MutationObserver to watch for class changes
+    const observer = new MutationObserver(() => {
+      const fullscreenElement = editorWrapper.querySelector(".CodeMirror-fullscreen")
+      setIsFullscreen(!!fullscreenElement)
+    })
+
+    // Observe the entire wrapper for changes in the DOM tree
+    observer.observe(editorWrapper, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class"],
+    })
+
+    return () => observer.disconnect()
+  }, [])
 
   const uploadDataToIrys = async () => {
     if (!address) {
@@ -36,7 +59,7 @@ const SimpleMd = () => {
       const dataToUpload = bodyInput
 
       const tags = [
-        { name: "application-id", value: "test-blog3" },
+        { name: "application-id", value: "test-blog2" },
         { name: "type", value: "post" },
         { name: "Content-Type", value: "text/markdown" },
         { name: "author", value: address },
@@ -65,8 +88,11 @@ const SimpleMd = () => {
           uploadDataToIrys()
         }}
       >
-        <div className="editor-wrapper w-full bg-gray-800/30 rounded-xl p-6 border border-gray-700/50 shadow-xl">
-          <SimpleMdeReact value={bodyInput} onChange={setBodyInput} style={{zIndex: '1Z'}} />
+        <div
+          ref={editorWrapperRef}
+          className={`editor-wrapper w-full bg-gray-800/30 rounded-xl p-6 border border-gray-700/50 shadow-xl ${isFullscreen ? "z-[9999]" : "z-0"}`}
+        >
+          <SimpleMdeReact value={bodyInput} onChange={setBodyInput} />
         </div>
 
         <Button

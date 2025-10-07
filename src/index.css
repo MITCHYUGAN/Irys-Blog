@@ -203,16 +203,41 @@ body{
   color: rgb(35, 237, 190);
 }
 
-.markdown-content ul,
+.markdown-content ul {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
 .markdown-content ol {
   margin-top: 1rem;
   margin-bottom: 1rem;
   padding-left: 1.5rem;
+  list-style-type: decimal;
 }
 
 .markdown-content li {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+  display: list-item;
+}
+
+.markdown-content ul ul {
+  list-style-type: circle;
+  margin-top: 0.25rem;
+}
+
+.markdown-content ul ul ul {
+  list-style-type: square;
+}
+
+.markdown-content ol ol {
+  list-style-type: lower-alpha;
+  margin-top: 0.25rem;
+}
+
+.markdown-content ol ol ol {
+  list-style-type: lower-roman;
 }
 
 .markdown-content strong {
@@ -261,6 +286,20 @@ body{
   height: auto;
   border-radius: 0.5rem;
   margin: 1.5rem 0;
+  display: block;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.markdown-content figure {
+  margin: 1.5rem 0;
+}
+
+.markdown-content figcaption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-top: 0.5rem;
+  font-style: italic;
 }
 
 .markdown-content table {
@@ -403,19 +442,50 @@ body{
 }
 
 .editor-wrapper .editor-preview ul,
+.editor-wrapper .editor-preview-side ul {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  color: #374151;
+  list-style-type: disc;
+}
 .editor-wrapper .editor-preview ol,
-.editor-wrapper .editor-preview-side ul,
 .editor-wrapper .editor-preview-side ol {
   margin-top: 1rem;
   margin-bottom: 1rem;
   padding-left: 1.5rem;
   color: #374151;
+  list-style-type: decimal;
 }
 
 .editor-wrapper .editor-preview li,
 .editor-wrapper .editor-preview-side li {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+  display: list-item;
+}
+
+.editor-wrapper .editor-preview ul ul,
+.editor-wrapper .editor-preview-side ul ul {
+  list-style-type: circle;
+  margin-top: 0.25rem;
+}
+
+.editor-wrapper .editor-preview ul ul ul,
+.editor-wrapper .editor-preview-side ul ul ul {
+  list-style-type: square;
+}
+
+.editor-wrapper .editor-preview ol ol,
+.editor-wrapper .editor-preview-side ol ol {
+  list-style-type: lower-alpha;
+  margin-top: 0.25rem;
+}
+
+.editor-wrapper .editor-preview ol ol ol,
+.editor-wrapper .editor-preview-side ol ol ol {
+    
+  list-style-type: lower-roman;
 }
 
 .editor-wrapper .editor-preview strong,
@@ -471,6 +541,21 @@ body{
   height: auto;
   border-radius: 0.5rem;
   margin: 1.5rem 0;
+  display: block;
+}
+
+.editor-wrapper .editor-preview figure,
+.editor-wrapper .editor-preview-side figure {
+  margin: 1.5rem 0;
+}
+
+.editor-wrapper .editor-preview figcaption,
+.editor-wrapper .editor-preview-side figcaption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+  font-style: italic;
 }
 
 .editor-wrapper .editor-preview table,
@@ -611,11 +696,6 @@ body{
   box-shadow: 0 4px 12px rgba(81, 255, 214, 0.3);
 }
 
-/* Modal backdrop */
-/* [data-rk] [class*="iekbcc0"][class*="ju367v2q"] {
-  backdrop-filter: blur(8px);
-  background-color: rgba(0, 0, 0, 0.6) !important;
-} */
 
 /* Scrollbar styling for modal */
 [data-rk] [role="dialog"] ::-webkit-scrollbar {

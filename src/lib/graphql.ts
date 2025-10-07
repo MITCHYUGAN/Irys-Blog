@@ -1,3 +1,4 @@
+import "dotenv/config";
 import axios from "axios";
 
 const GRAPHQL_ENDPOINT = "https://devnet.irys.xyz/graphql";
@@ -22,12 +23,12 @@ export async function getPost() {
     query {
       transactions(
         tags: [
-          { name: "application-id", values: ["test-blog3"] }
-          { name: "type", values: ["post"] }
+          { name: "application-id", values: ["${import.meta.env.VITE_APPLICATION_ID}"] }
+          { name: "type", values: ["${import.meta.env.VITE_TYPE}"] }
         ],
         timestamp: { from: ${fromTimestamp}, to: ${toTimestamp} },
         order: DESC,
-        limit: 10
+        limit: 11
       ) {
         edges {
           node {

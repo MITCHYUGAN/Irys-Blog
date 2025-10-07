@@ -9,7 +9,7 @@ const Hero = () => {
       <div className="absolute top-20 left-1/4 w-96 h-96 bg-main/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-main/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
+      <div className="max-w-4xl mx-auto space-y-8 relative">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-main/10 border border-main/20 text-main text-sm font-medium">
           <Zap className="w-4 h-4" />
           <span>Powered by Irys Datachain</span>
@@ -17,7 +17,7 @@ const Hero = () => {
 
         <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight">
           Publish on the{" "}
-          <span className="text-main bg-gradient-to-r from-main to-emerald-400 bg-clip-text text-transparent">
+          <span className="text-main bg-gradient-to-r from-main to-emerald-400 bg-clip-text">
             Datachain
           </span>
         </h1>

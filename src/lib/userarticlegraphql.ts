@@ -23,8 +23,8 @@ const userAddress = address;  // Default or from param
       transactions(
         owners: ["${userAddress}"]
         tags: [
-          { name: "application-id", values: ["test-blog3"] }
-          { name: "type", values: ["post"] }
+          { name: "application-id", values: ["${import.meta.env.VITE_APPLICATION_ID}"] }
+          { name: "type", values: ["${import.meta.env.VITE_TYPE}"] }
         ],
         timestamp: { from: ${fromTimestamp}, to: ${toTimestamp} },
         order: DESC,
