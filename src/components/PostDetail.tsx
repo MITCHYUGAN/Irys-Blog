@@ -87,7 +87,7 @@ export function PostDetail() {
     <>
       <Navbar />
       <section className="px-6 py-12 mt-20 text-white font-display-inter min-h-screen">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <Button
             variant="ghost"
             className="mb-8 text-main hover:text-main/80 hover:bg-main/10 transition-all font-display-inter"
