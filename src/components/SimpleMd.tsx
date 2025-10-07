@@ -59,7 +59,7 @@ const SimpleMd = () => {
       const dataToUpload = bodyInput
 
       const tags = [
-        { name: "application-id", value: "test-blog2" },
+        { name: "application-id", value: "irys-blogerr" },
         { name: "type", value: "post" },
         { name: "Content-Type", value: "text/markdown" },
         { name: "author", value: address },
