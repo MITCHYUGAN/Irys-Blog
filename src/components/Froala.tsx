@@ -42,7 +42,7 @@ const Froala = () => {
         { name: "Content-Type", value: file.type },
         {
           name: "application-id",
-          value: import.meta.env.VITE_APPLICATION_ID || "test-blog2",
+          value: import.meta.env.VITE_APPLICATION_ID,
         },
         { name: "type", value: "image" },
         { name: "author", value: address },
@@ -78,8 +78,8 @@ const Froala = () => {
       const dataToUpload = model; // Model is the full content (now HTML)
 
       const tags = [
-        { name: "application-id", value: "test-blog2" },
-        { name: "type", value: "post" },
+        { name: "application-id", value: `${import.meta.env.VITE_APPLICATION_ID}`},
+        { name: "type", value: `${import.meta.env.VITE_TYPE}`},
         { name: "Content-Type", value: "text/html" }, // Changed to HTML
         { name: "author", value: address },
       ];
