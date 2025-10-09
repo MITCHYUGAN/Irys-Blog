@@ -53,7 +53,7 @@ export async function getPost() {
       });
       return {
         id,
-        markdown: contentResponse.data,
+        content: contentResponse.data,
         timestamp: edge.node.timestamp,
         tags: edge.node.tags,
       };
@@ -62,7 +62,7 @@ export async function getPost() {
 
   // Deduplicate posts based on title and body
   const uniquePosts = Array.from(
-    new Map(posts.map((post) => [post.markdown.slice(0, 500), post])).values()
+    new Map(posts.map((post) => [post.content.slice(0, 500), post])).values()
   );
 
   return uniquePosts;

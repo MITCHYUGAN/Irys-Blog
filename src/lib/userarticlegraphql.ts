@@ -52,7 +52,7 @@ const userAddress = address;  // Default or from param
       });
       return {
         id,
-        markdown: contentResponse.data,
+        content: contentResponse.data,
         timestamp: edge.node.timestamp,
         tags: edge.node.tags,
       };
@@ -61,7 +61,7 @@ const userAddress = address;  // Default or from param
 
   // Deduplicate posts based on title and body
   const uniquePosts = Array.from(
-    new Map(posts.map((post) => [post.markdown.slice(0, 500), post])).values()
+    new Map(posts.map((post) => [post.content.slice(0, 500), post])).values()
   );
 
   return uniquePosts;

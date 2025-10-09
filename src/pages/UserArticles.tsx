@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button"
 import { getUserPost } from "@/lib/userarticlegraphql"
 import { ArrowRight, Bookmark, Clock, Heart, MessageCircle, FileText, User } from "lucide-react"
 import { useEffect, useState } from "react"
-import ReactMarkdown from "react-markdown"
+import DOMPurify from "dompurify"
 import { useNavigate } from "react-router-dom"
 import { useAccount } from "wagmi"
 
 interface Article {
   id: string
-  markdown: string
+  content: string
   author: string
   createdAt: number
   likes: number
@@ -31,16 +31,16 @@ const UserArticles = () => {
         const formattedPosts: Article[] = fetchedPosts.map((post: any) => {
           const author =
             post.tags.find((t: any) => t.name === "author")?.value.slice(0, 6) +
-              "..." +
-              post.tags.find((t: any) => t.name === "author")?.value.slice(-4) || "Anonymous"
+            "..." +
+            post.tags.find((t: any) => t.name === "author")?.value.slice(-4) || "Anonymous"
           return {
             id: post.id,
-            markdown: post.markdown,
+            content: post.content,
             author,
             createdAt: post.timestamp,
             likes: 0,
             comments: 0,
-            readTime: `${Math.ceil(post.markdown.split(" ").length / 200)} min read`,
+            readTime: `${Math.ceil(post.content.split(" ").length / 200)} min read`,
           }
         })
         setPosts(formattedPosts)
@@ -72,7 +72,7 @@ const UserArticles = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-main/5 via-transparent to-transparent pointer-events-none" />
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-main/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 flex flex-col items-center text-center">
+        <div className="relative max-w-6xl mx-auto px-6 py-16 flex flex-col items-center text-center">
           <div className="w-20 h-20 rounded-full flex items-center justify-center text-black font-bold text-2xl shadow-xl mb-6 bg-main">
             <User className="w-10 h-10" />
           </div>
@@ -107,77 +107,73 @@ const UserArticles = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {posts.map((article) => {
-              return (
-                <article
-                  key={article.id}
-                  className="bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden hover:from-gray-800/70 hover:to-gray-800/50 transition-all duration-300 border border-gray-700/50 hover:border-main/30 hover:shadow-lg hover:shadow-main/10 group"
-                >
-                  <div className="p-6">
-                    {/* Author Info */}
-                    <div className="flex items-center justify-between mb-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-lg bg-main">
-                          {article.author.slice(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-semibold font-display-inter text-white">{article.author}</p>
-                          <p className="text-gray-400 text-sm font-display-inter">
-                            {new Date(article.createdAt).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            })}
-                          </p>
-                        </div>
+            {posts.map((article) => (
+              <article
+                key={article.id}
+                className="bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden transition-all duration-300 border border-gray-700/50 hover:border-main/30 hover:shadow-lg hover:shadow-main/10 group"
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-lg bg-main">
+                        {article.author.slice(0, 2).toUpperCase()}
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-main/10 text-main border border-main/20 font-display-inter">
-                          Blog
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
-                        >
-                          <Bookmark className="w-4 h-4" />
-                        </Button>
+                      <div>
+                        <p className="font-semibold font-display-inter text-white">{article.author}</p>
+                        <p className="text-gray-400 text-sm font-display-inter">
+                          {new Date(article.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </p>
                       </div>
                     </div>
-
-                    <div className="markdown-content mb-5 text-gray-300 line-clamp-3">
-                      <ReactMarkdown>{article.markdown.slice(0, 300) + "..."}</ReactMarkdown>
-                    </div>
-
-                    {/* Article Stats */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
-                      <div className="flex items-center gap-6 text-gray-400 font-display-inter">
-                        <div className="flex items-center gap-2 hover:text-main transition-colors cursor-pointer">
-                          <Heart className="w-4 h-4" />
-                          <span className="text-sm">{article.likes}</span>
-                        </div>
-                        <div className="flex items-center gap-2 hover:text-main transition-colors cursor-pointer">
-                          <MessageCircle className="w-4 h-4" />
-                          <span className="text-sm">{article.comments}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          <span className="text-sm">{article.readTime}</span>
-                        </div>
-                      </div>
+                    <div className="flex items-center gap-3">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-main/10 text-main border border-main/20 font-display-inter">
+                        Blog
+                      </span>
                       <Button
                         variant="ghost"
-                        className="text-main hover:text-main/80 hover:bg-main/10 p-0 h-auto font-medium cursor-pointer font-display-inter group-hover:translate-x-1 transition-transform"
-                        onClick={() => navigate(`/post/${article.id}`)}
+                        size="sm"
+                        className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
                       >
-                        Read More
-                        <ArrowRight className="w-4 h-4 ml-1" />
+                        <Bookmark className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
-                </article>
-              )
-            })}
+
+                  <div className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none "
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content.slice(0, 3000)) }}
+                  />
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
+                    <div className="flex items-center gap-6 text-gray-400 font-display-inter">
+                      <div className="flex items-center gap-2 hover:text-main transition-colors cursor-pointer">
+                        <Heart className="w-4 h-4" />
+                        <span className="text-sm">{article.likes}</span>
+                      </div>
+                      <div className="flex items-center gap-2 hover:text-main transition-colors cursor-pointer">
+                        <MessageCircle className="w-4 h-4" />
+                        <span className="text-sm">{article.comments}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-sm">{article.readTime}</span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      className="text-main hover:text-main/80 hover:bg-main/10 p-0 h-auto font-medium cursor-pointer font-display-inter group-hover:translate-x-1 transition-transform"
+                      onClick={() => navigate(`/post/${article.id}`)}
+                    >
+                      Read More
+                      <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
         )}
       </div>

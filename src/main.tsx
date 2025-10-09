@@ -11,8 +11,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { config } from "./lib/wagmiConfig.ts";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { PostDetail } from "./components/PostDetail.tsx";
-import SimpleMd from "./components/SimpleMd.tsx";
 import UserArticles from "./pages/UserArticles.tsx";
+import Froala from "./components/Froala.tsx";
 
 const customTheme = darkTheme({
   accentColor: "#00FFD1", // your Irys green/blue
@@ -39,8 +39,9 @@ const router = createBrowserRouter([
         <div className="app-container">
           <Write />
         </div>
-        <div  style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-          <SimpleMd />
+        <div className="app-container"  style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+          {/* <SimpleMd /> */}
+          <Froala />
         </div>
       </div>
     ),

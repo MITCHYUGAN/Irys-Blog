@@ -5,14 +5,12 @@ import { getPost } from "@/lib/graphql"
 import { useEffect, useState } from "react"
 import { ArrowLeft, Bookmark, Clock, Heart, MessageCircle, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
 import DOMPurify from "dompurify"
 import Navbar from "./Navbar"
 
 interface Article {
   id: string
-  markdown: string
+  content: string
   author: string
   createdAt: number
   likes: number
@@ -33,16 +31,16 @@ export function PostDetail() {
         if (foundPost) {
           const author =
             foundPost.tags.find((t: any) => t.name === "author")?.value.slice(0, 6) +
-              "..." +
-              foundPost.tags.find((t: any) => t.name === "author")?.value.slice(-4) || "Anonymous"
+            "..." +
+            foundPost.tags.find((t: any) => t.name === "author")?.value.slice(-4) || "Anonymous"
           setPost({
             id: foundPost.id,
-            markdown: foundPost.markdown,
+            content: foundPost.content,
             author,
             createdAt: foundPost.timestamp,
             likes: 0,
             comments: 0,
-            readTime: `${Math.ceil(foundPost.markdown.split(" ").length / 200)} min read`,
+            readTime: `${Math.ceil(foundPost.content.split(" ").length / 200)} min read`,
           })
         }
       } catch (error) {
@@ -139,9 +137,9 @@ export function PostDetail() {
                 </div>
               </div>
 
-              <div className="markdown-content prose prose-invert max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{DOMPurify.sanitize(post.markdown)}</ReactMarkdown>
-              </div>
+              <div className="markdown-content prose prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+              />
 
               <div className="flex items-center gap-8 text-gray-400 mt-10 pt-6 border-t border-gray-700/50">
                 <button className="flex items-center gap-2 hover:text-main transition-colors group">
