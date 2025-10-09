@@ -6,6 +6,9 @@ import "froala-editor/css/froala_editor.pkgd.min.css";
 // Import all Froala Editor plugins;
 import "froala-editor/js/plugins.pkgd.min.js";
 
+// Import Froala Editor type
+import FroalaEditor from "froala-editor";
+
 import FroalaEditorComponent from "react-froala-wysiwyg";
 import { getIrysUploader } from "@/lib/irys";
 import { useAccount } from "wagmi";
@@ -100,7 +103,7 @@ const Froala = () => {
     placeholderText: "Write your article here... You can paste images directly!",
     charCounterCount: false,
     events: {
-      "image.beforeUpload": function (files: File[]) {
+      "image.beforeUpload": function (this: typeof FroalaEditor, files: File[]) {
         handleImageUpload(files, (url: string, error?: string) => {
           if (error) {
             this.image.showMsg(error, "error");
@@ -111,6 +114,18 @@ const Froala = () => {
         return false; // Prevent default upload
       },
     },
+  //   events: {
+  //     "image.beforeUpload": function (files: File[]) {
+  //       handleImageUpload(files, (url: string, error?: string) => {
+  //         if (error) {
+  //           this.image.showMsg(error, "error");
+  //         } else {
+  //           this.image.insert(url, null, null, this.image.get());
+  //         }
+  //       });
+  //       return false; // Prevent default upload
+  //     },
+  //   },
     htmlAllowedTags: ["p", "h1", "h2", "h3", "ul", "li", "strong", "em", "blockquote", "figure", "img", "source"], // Allow necessary HTML tags
     htmlAllowedAttrs: ["style", "class", "src", "alt", "width", "height", "srcset", "sizes", "type", "data-*"], // Allow necessary attributes
   };
