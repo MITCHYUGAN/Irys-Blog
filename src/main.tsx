@@ -13,6 +13,7 @@ import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { PostDetail } from "./components/PostDetail.tsx";
 import UserArticles from "./pages/UserArticles.tsx";
 import Froala from "./components/Froala.tsx";
+import AllArticles from "./pages/AllArticles.tsx";
 
 const customTheme = darkTheme({
   accentColor: "#00FFD1", // your Irys green/blue
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
         </div>
       </div>
     ),
+  },
+  {
+    path: "/all/articles",
+    element: <div className="app-container"><AllArticles /></div>,
   },
   {
     path: "/me/articles",

@@ -1,75 +1,100 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Heart, MessageCircle, Clock, ArrowRight, Bookmark } from "lucide-react"
-import { Sidebar } from "./SideBar"
-import { getPost } from "@/lib/graphql"
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import DOMPurify from "dompurify"
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Heart,
+  MessageCircle,
+  Clock,
+  ArrowRight,
+  Bookmark,
+} from "lucide-react";
+import { Sidebar } from "./SideBar";
+import { getPost } from "@/lib/graphql";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import DOMPurify from "dompurify";
+import { getAllPosts } from "@/lib/allarticlesgraphql";
 
 // Function to truncate HTML safely
 const truncateHtml = (html: string, maxLength: number): string => {
-  const tempDiv = document.createElement("div")
-  tempDiv.innerHTML = html
-  let textLength = 0
-  let truncatedHtml = ""
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  let textLength = 0;
+  let truncatedHtml = "";
 
   const traverseNodes = (node: Node) => {
-    if (textLength >= maxLength) return
+    if (textLength >= maxLength) return;
     if (node.nodeType === Node.TEXT_NODE) {
-      const text = node.textContent || ""
+      const text = node.textContent || "";
       if (textLength + text.length <= maxLength) {
-        truncatedHtml += text
-        textLength += text.length
+        truncatedHtml += text;
+        textLength += text.length;
       } else {
-        truncatedHtml += text.slice(0, maxLength - textLength) + "..."
-        textLength = maxLength
+        truncatedHtml += text.slice(0, maxLength - textLength) + "...";
+        textLength = maxLength;
       }
     } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const element = node as Element
+      const element = node as Element;
       if (element.tagName.toLowerCase() === "img") {
-        truncatedHtml += element.outerHTML
-        textLength += (element.textContent?.length || 0) // Approximate length
-        if (textLength >= maxLength) return
+        truncatedHtml += element.outerHTML;
+        textLength += element.textContent?.length || 0; // Approximate length
+        if (textLength >= maxLength) return;
       }
-      Array.from(element.childNodes).forEach(traverseNodes)
+      Array.from(element.childNodes).forEach(traverseNodes);
     }
-  }
+  };
 
-  traverseNodes(tempDiv)
-  return truncatedHtml || html.slice(0, maxLength) + "..."
-}
+  traverseNodes(tempDiv);
+  return truncatedHtml || html.slice(0, maxLength) + "...";
+};
 
 interface Article {
-  id: string
-  content: string
-  author: string
-  createdAt: number
-  likes: number
-  comments: number
-  readTime: string
+  id: string;
+  content: string;
+  author: string;
+  createdAt: number;
+  likes: number;
+  comments: number;
+  readTime: string;
 }
 
 export function ArticlesSection() {
-  const [posts, setPosts] = useState<Article[]>([])
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+  const [posts, setPosts] = useState<Article[]>([]);
+  const [allPosts, setAllPosts] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchAllPosts = async () => {
+      try {
+        const allFetchedPosts = await getAllPosts();
+        setAllPosts(allFetchedPosts);
+      } catch (error) {
+        console.log("Error fetching All posts", error);
+      }
+    };
+
     const fetchPosts = async () => {
       try {
-        const fetchedPosts = await getPost()
+        const fetchedPosts = await getPost();
         const formattedPosts: Article[] = fetchedPosts.map((post: any) => {
           const author =
             post.tags.find((t: any) => t.name === "author")?.value.slice(0, 6) +
-            "..." +
-            post.tags.find((t: any) => t.name === "author")?.value.slice(-4) || "Anonymous"
-          const tempDiv = document.createElement("div")
-          tempDiv.innerHTML = post.content
-          const plainText = tempDiv.textContent || post.content
-          const previewHtml = truncateHtml(post.content, 500)
+              "..." +
+              post.tags
+                .find((t: any) => t.name === "author")
+                ?.value.slice(-4) || "Anonymous";
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = post.content;
+          const plainText = tempDiv.textContent || post.content;
+          const previewHtml = truncateHtml(post.content, 500);
           return {
             id: post.id,
             content: post.content,
@@ -77,20 +102,23 @@ export function ArticlesSection() {
             createdAt: post.timestamp,
             likes: 0,
             comments: 0,
-            readTime: `${Math.ceil(plainText.split(" ").length / 200)} min read`,
+            readTime: `${Math.ceil(
+              plainText.split(" ").length / 200
+            )} min read`,
             previewHtml,
-          }
-        })
-        setPosts(formattedPosts)
+          };
+        });
+        setPosts(formattedPosts);
       } catch (error) {
-        console.error("Error fetching posts:", error)
+        console.error("Error fetching posts:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchPosts()
-  }, [])
+    fetchAllPosts();
+    fetchPosts();
+  }, []);
 
   if (loading) {
     return (
@@ -98,7 +126,7 @@ export function ArticlesSection() {
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-main border-t-transparent mb-4"></div>
         <p className="text-gray-400 font-display-inter">Loading articles...</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -108,7 +136,9 @@ export function ArticlesSection() {
         <div className="md:max-w-5xl w-full mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div className="flex gap-4 items-center">
-              <h2 className="md:text-4xl text-3xl font-bold font-display">Latest Articles</h2>
+              <h2 className="md:text-4xl text-3xl font-bold font-display">
+                Latest Articles
+              </h2>
               <p className="text-gray-400 mt-1 hidden md:block font-display-inter text-sm bg-gray-800/50 px-3 py-1 rounded-full">
                 {posts.length} articles
               </p>
@@ -120,16 +150,16 @@ export function ArticlesSection() {
               <SelectContent className="bg-gray-800 border-gray-700">
                 <SelectItem value="recent">Most Recent</SelectItem>
                 <SelectItem value="popular">Most Popular</SelectItem>
-                <SelectItem value="trending">Trending</SelectItem>
+                {/* <SelectItem value="trending">Trending</SelectItem> */}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 w-full flex flex-col items-center ">
             {posts.map((article) => (
               <article
                 key={article.id}
-                className="bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden transition-all duration-300 border border-gray-700/50 hover:border-main/30 hover:shadow-lg hover:shadow-main/10 group"
+                className="w-full bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden transition-all duration-300 border border-gray-700/50 hover:border-main/30 hover:shadow-lg hover:shadow-main/10 group"
               >
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-5">
@@ -141,13 +171,18 @@ export function ArticlesSection() {
                         {article.author.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-semibold font-display-inter text-white">{article.author}</p>
+                        <p className="font-semibold font-display-inter text-white">
+                          {article.author}
+                        </p>
                         <p className="text-gray-400 text-sm font-display-inter">
-                          {new Date(article.createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+                          {new Date(article.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )}
                         </p>
                       </div>
                     </div>
@@ -165,8 +200,13 @@ export function ArticlesSection() {
                     </div>
                   </div>
 
-                  <div className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content.slice(0, 3000)) }}
+                  <div
+                    className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        article.content.slice(0, 3000)
+                      ),
+                    }}
                   />
                   <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
                     <div className="flex items-center gap-6 text-gray-400 font-display-inter">
@@ -195,9 +235,18 @@ export function ArticlesSection() {
                 </div>
               </article>
             ))}
+
+            {allPosts.length > 9 && (
+              <Button
+                className="bg-main hover:bg-main/90 btn-store_on_irys text-black font-semibold px-12 py-7 text-xl rounded-lg shadow-lg shadow-main/20 hover:shadow-xl hover:shadow-main/30 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 font-display-inter"
+                onClick={() => navigate("/all/articles")}
+              >
+                View All {allPosts.length}
+              </Button>
+            )}
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
