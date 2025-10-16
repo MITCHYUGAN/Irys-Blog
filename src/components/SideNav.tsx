@@ -1,16 +1,10 @@
 "use client";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import {
-  X,
-  Bookmark,
-  Heart,
-  MessageCircle,
-  User,
-} from "lucide-react";
+import { X, Bookmark, Heart, MessageCircle, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getProfile } from "@/lib/irys";
 
@@ -23,11 +17,14 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
   const { address } = useAccount();
   const [navToggle, setNavToggle] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
+  const [bio, setBio] = useState<string | null>(null);
+  const {disconnect} = useDisconnect()
 
   const fetchProfile = async () => {
     if (address) {
       const profile = await getProfile(address);
       setUsername(profile?.username || null);
+      setBio(profile?.bio || null);
     }
   };
 
@@ -87,14 +84,55 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
         </button>
         <div className="flex flex-col items-center justify-center flex-1 px-6 gap-8">
           <ConnectButton.Custom>
-            {({ account, chain, openAccountModal, openChainModal, mounted }) => {
+            {({
+              account,
+              chain,
+              openAccountModal,
+              openChainModal,
+              mounted,
+            }) => {
               const ready = mounted;
               const connected = ready && account && chain;
               return (
                 <div className="w-full flex flex-col items-center gap-6">
                   {connected && (
                     <>
-                      <button
+                      <div className="text-center flex flex-col items-center">
+                        <div
+                          className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-black font-bold text-2xl"
+                          style={{ backgroundColor: "rgb(81, 255, 214)" }}
+                        >
+                          {username?.slice(0, 2).toUpperCase() ||
+                            account.address?.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={openAccountModal}
+                        >
+                          <button className="text-white font-semibold text-lg font-display-inter hover:text-main transition-colors">
+                            {username ? `@${username}` : account.displayName}
+                          </button>
+                          <svg
+                            width="12"
+                            height="7"
+                            viewBox="0 0 12 7"
+                            fill="none"
+                            className="text-gray-400"
+                          >
+                            <path
+                              d="M1 1L6 6L11 1"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                        </div>
+                        <p className="text-gray-400 text-1xl mt-1">
+                          {bio?.slice(0, 50) + "..."}
+                        </p>
+                      </div>
+
+                      {/* <button
                         onClick={openChainModal}
                         className="w-full bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-main/50 rounded-lg px-4 py-3 flex items-center justify-between transition-all duration-200"
                       >
@@ -106,32 +144,25 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
                               className="w-6 h-6"
                             />
                           )}
-                          <span className="text-white font-medium font-display-inter">{chain.name}</span>
+                          <span className="text-white font-medium font-display-inter">
+                            {chain.name}
+                          </span>
                         </div>
-                        <svg width="12" height="7" viewBox="0 0 12 7" fill="none" className="text-gray-400">
-                          <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                        <svg
+                          width="12"
+                          height="7"
+                          viewBox="0 0 12 7"
+                          fill="none"
+                          className="text-gray-400"
+                        >
+                          <path
+                            d="M1 1L6 6L11 1"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
                         </svg>
-                      </button>
-                      <div className="text-center">
-                        <div
-                          className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center text-black font-bold text-2xl"
-                          style={{ backgroundColor: "rgb(81, 255, 214)" }}
-                        >
-                          {username?.slice(0, 2).toUpperCase() || account.address?.slice(0, 2).toUpperCase()}
-                        </div>
-                        <div
-                          className="flex items-center gap-2 hover:bg-black cursor-pointer"
-                          onClick={openAccountModal}
-                        >
-                          <button className="text-white font-semibold text-lg font-display-inter hover:text-main transition-colors">
-                            {username ? `@${username}` : account.displayName}
-                          </button>
-                          <svg width="12" height="7" viewBox="0 0 12 7" fill="none" className="text-gray-400">
-                            <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                          </svg>
-                        </div>
-                        <p className="text-gray-400 text-sm mt-1">Your Profile</p>
-                      </div>
+                      </button> */}
                     </>
                   )}
                 </div>
@@ -141,7 +172,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
           <div className="flex flex-col gap-3 w-full">
             {/* Update: Use username for profile link */}
             <Link to={`/profile/@${username}`}>
-            {/* <Link to={`/profile/@${username || address}`}> */}
+              {/* <Link to={`/profile/@${username || address}`}> */}
               <Button
                 variant="ghost"
                 className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
@@ -172,6 +203,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
               Comments <span className="text-[10px]">(Coming soon...)</span>
             </Button>
           </div>
+          <Button variant={"secondary"} onClick={() => disconnect()}>Disconnect Profile</Button>
         </div>
       </div>
     </div>
