@@ -141,13 +141,14 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
           </ConnectButton.Custom>
           <div className="flex flex-col gap-3 w-full">
             {/* Update: Use username for profile link */}
-            <Link to={`/profile/@${username || address}`}>
+            <Link to={`/profile/@${username}`}>
+            {/* <Link to={`/profile/@${username || address}`}> */}
               <Button
                 variant="ghost"
                 className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
               >
                 <User className="w-5 h-5 mr-3" />
-                View Full Profile
+                View My Articles
               </Button>
             </Link>
             <Button

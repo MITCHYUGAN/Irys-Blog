@@ -100,16 +100,6 @@ const AllArticles = () => {
 
     fetchPosts();
   }, []);
-
-  // if (loading) {
-  //   return (
-  //     <div className="text-center py-20 text-white">
-  //       <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-main border-t-transparent mb-4"></div>
-  //       <p className="text-gray-400 font-display-inter">Loading articles...</p>
-  //     </div>
-  //   );
-  // }
-
   return (
     <section className="mt-25 flex flex-col items-center">
       <Navbar />

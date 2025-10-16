@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { config } from "./lib/wagmiConfig.ts";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { PostDetail } from "./components/PostDetail.tsx";
-import UserArticles from "./pages/UserArticles.tsx";
+// import UserArticles from "./pages/UserArticles.tsx";
 import Froala from "./components/Froala.tsx";
 import AllArticles from "./pages/AllArticles.tsx";
 import { Profile } from "./pages/Profile.tsx";
@@ -52,10 +52,10 @@ const router = createBrowserRouter([
     path: "/all/articles",
     element: <div className="app-container"><AllArticles /></div>,
   },
-  {
-    path: "/me/articles",
-    element: <div className="app-container"><UserArticles /></div>,
-  },
+  // {
+  //   path: "/me/articles",
+  //   element: <div className="app-container"><UserArticles /></div>,
+  // },
   {
     path: "/post/:id",
     element: <div className="app-container"><PostDetail /></div>,

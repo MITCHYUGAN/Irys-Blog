@@ -8,9 +8,9 @@ import { ProfileModal } from "./components/ProfileModal";
 
 function App() {
   const { address } = useAccount();
-  const [hasProfile, setHasProfile] = useState(false);
+  const [, setHasProfile] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const checkProfile = async () => {

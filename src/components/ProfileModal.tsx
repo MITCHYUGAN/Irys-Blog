@@ -24,7 +24,6 @@ export function ProfileModal({
   onClose,
   onProfileCreated,
 }: ProfileModalProps) {
-  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,7 +46,7 @@ export function ProfileModal({
   };
 
   const handleSubmit = async () => {
-    if (!name || !username || !bio) {
+    if (!username || !bio) {
       alert("Please fill all fields.");
       return;
     }
@@ -57,7 +56,7 @@ export function ProfileModal({
     }
     setLoading(true);
     try {
-      await uploadProfile(name, username, bio, author);
+      await uploadProfile( username, bio, author);
       onProfileCreated();
       onClose();
     } catch (error) {
@@ -85,15 +84,6 @@ export function ProfileModal({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="Your Name"
-            />
-          </div>
           <div>
             <label className="block text-sm font-medium mb-1">Username</label>
             <Input
