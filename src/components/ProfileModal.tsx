@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { checkUsername, uploadProfile } from "@/lib/irys";
 import { DialogDescription } from "@radix-ui/react-dialog";
+import { useDisconnect } from "wagmi";
 
 interface ProfileModalProps {
   author: string;
@@ -28,6 +29,7 @@ export function ProfileModal({
   const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(false);
   const [usernameError, setUsernameError] = useState("");
+  const { disconnect } = useDisconnect();
 
   const cleanUsername = (input: string) => {
     return input.replace(/^@+/, ""); // Remove any leading @ symbols
@@ -66,9 +68,14 @@ export function ProfileModal({
     }
   };
 
+  const handleDisconnect = async () => {
+    disconnect();
+    onClose(); // Change: Close modal after disconnect
+  };
+
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-800 text-white">
+    <Dialog open={true} onOpenChange={() => {}}>
+      <DialogContent className="bg-gray-800 border-0  text-white [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
             Complete Your Profile
@@ -95,7 +102,9 @@ export function ProfileModal({
               className="bg-gray-900 border-gray-700 text-white"
               placeholder="@username"
             />
-            {usernameError && <p className="text-red-400 text-sm mt-1">{usernameError}</p>}
+            {usernameError && (
+              <p className="text-red-400 text-sm mt-1">{usernameError}</p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Bio</label>
@@ -107,14 +116,21 @@ export function ProfileModal({
               rows={4}
             />
           </div>
-          <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={onClose} disabled={loading}>
-              Skip for Now
+          <div className="flex justify-between gap-3">
+            <Button
+              variant="default"
+              onClick={handleDisconnect}
+              disabled={loading}
+              className="cursor-pointer"
+            >
+              {" "}
+              {/* Change: Add Disconnect button */}
+              Disconnect Wallet
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={loading || !!usernameError}
-              className="bg-main text-black"
+              className="bg-main text-black cursor-pointer hover:bg-main/90"
             >
               {loading ? "Creating..." : "Create Profile"}
             </Button>

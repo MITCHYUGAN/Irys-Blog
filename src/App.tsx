@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
-import Footer from "./components/Footer"
-import Navbar from "./components/Navbar"
-import Home from "./pages/Home"
+import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
 import { useAccount } from "wagmi";
 import { getProfile } from "./lib/irys";
 import { ProfileModal } from "./components/ProfileModal";
 
 function App() {
-
   const { address } = useAccount();
-  const [hasProfile, setHasProfile] = useState(true);
+  const [hasProfile, setHasProfile] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -18,7 +17,10 @@ function App() {
       if (address) {
         const profile = await getProfile(address);
         setHasProfile(!!profile);
-        if (!profile) setShowModal(true);
+        setShowModal(!profile);
+      } else {
+        setHasProfile(false);
+        setShowModal(false); // Don't show modal if not connected
       }
     };
     checkProfile();
@@ -32,18 +34,18 @@ function App() {
 
   return (
     <main className="main">
-      <Navbar onProfileCreated={handleProfileCreated}/>
+      <Navbar onProfileCreated={handleProfileCreated} />
       <Home />
       <Footer />
-      {showModal && (
+      {showModal && address && (
         <ProfileModal
-          author={address || ""}
+          author={address}
           onClose={() => setShowModal(false)}
           onProfileCreated={handleProfileCreated}
         />
       )}
     </main>
-  )
+  );
 }
 
-export default App
+export default App;
