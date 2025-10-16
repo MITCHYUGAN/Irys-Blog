@@ -88,7 +88,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
               account,
               chain,
               openAccountModal,
-              openChainModal,
+              // openChainModal,
               mounted,
             }) => {
               const ready = mounted;
