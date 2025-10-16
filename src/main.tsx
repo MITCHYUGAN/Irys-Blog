@@ -14,6 +14,7 @@ import { PostDetail } from "./components/PostDetail.tsx";
 import UserArticles from "./pages/UserArticles.tsx";
 import Froala from "./components/Froala.tsx";
 import AllArticles from "./pages/AllArticles.tsx";
+import { Profile } from "./pages/Profile.tsx";
 
 const customTheme = darkTheme({
   accentColor: "#00FFD1", // your Irys green/blue
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
   {
     path: "/post/:id",
     element: <div className="app-container"><PostDetail /></div>,
+  },
+  {
+    path: "/profile/:username",
+    element: <div className="app-container"><Profile /></div>,
   },
 ]);
 

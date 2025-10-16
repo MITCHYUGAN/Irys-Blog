@@ -7,7 +7,12 @@ import { Link } from "react-router-dom"
 import SideNav from "./SideNav"
 import { useState } from "react"
 
-export default function Navbar() {
+
+interface NavbarProps {
+  onProfileCreated?: () => void;
+}
+
+export default function Navbar({ onProfileCreated }: NavbarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   console.log("isSidebarOpen", isSidebarOpen)
 
@@ -46,7 +51,7 @@ export default function Navbar() {
               Write
             </Button>
           </Link>
-          <SideNav onToggle={setIsSidebarOpen} />
+          <SideNav onToggle={setIsSidebarOpen} onProfileCreated={onProfileCreated} />
         </div>
       </header>
     </div>

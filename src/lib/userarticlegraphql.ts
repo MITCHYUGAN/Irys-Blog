@@ -66,3 +66,33 @@ const userAddress = address;  // Default or from param
 
   return uniquePosts;
 }
+
+
+export async function getProfileByUsername(username: string) {
+  const query = `
+    query {
+      transactions(
+        tags: [
+          { name: "application-id", values: ["${import.meta.env.VITE_APPLICATION_ID}"] }
+          { name: "type", values: ["profile"] }
+          { name: "username", values: ["${username.replace(/^@/, "")}"] }
+        ],
+        order: DESC,
+        limit: 1
+      ) {
+        edges {
+          node {
+            id
+            tags { name value }
+          }
+        }
+      }
+    }
+  `;
+  const { edges } = await queryGraphQL(query);
+  if (edges.length === 0) {
+    return null;
+  }
+  const profileData = await (await fetch(`https://devnet.irys.xyz/${edges[0].node.id}`)).json();
+  return profileData;
+}

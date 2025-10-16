@@ -1,12 +1,13 @@
 "use client"
 
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { getPost } from "@/lib/graphql"
 import { useEffect, useState } from "react"
 import { ArrowLeft, Bookmark, Clock, Heart, MessageCircle, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import DOMPurify from "dompurify"
 import Navbar from "./Navbar"
+import { getProfile } from "@/lib/irys"
 
 interface Article {
   id: string
@@ -16,12 +17,14 @@ interface Article {
   likes: number
   comments: number
   readTime: string
+  username?: string
 }
 
 export function PostDetail() {
   const { id } = useParams<{ id: string }>()
   const [post, setPost] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -29,10 +32,14 @@ export function PostDetail() {
         const fetchedPosts = await getPost()
         const foundPost = fetchedPosts.find((p: any) => p.id === id)
         if (foundPost) {
-          const author =
-            foundPost.tags.find((t: any) => t.name === "author")?.value.slice(0, 6) +
-            "..." +
-            foundPost.tags.find((t: any) => t.name === "author")?.value.slice(-4) || "Anonymous"
+          const author = foundPost.tags.find((t: any) => t.name === "author")?.value || "Anonymous";
+          const profile = await getProfile(author);
+          let content;
+          try {
+            content = JSON.parse(foundPost.content); // Try parsing as JSON
+          } catch (e) {
+            content = { title: "Untitled", body: foundPost.content }; // Fallback
+          }
           setPost({
             id: foundPost.id,
             content: foundPost.content,
@@ -41,6 +48,7 @@ export function PostDetail() {
             likes: 0,
             comments: 0,
             readTime: `${Math.ceil(foundPost.content.split(" ").length / 200)} min read`,
+            username: profile?.username,
           })
         }
       } catch (error) {
@@ -98,7 +106,7 @@ export function PostDetail() {
             <div className="p-8 md:p-10">
               {/* Header */}
               <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-700/50">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate(`/profile/@${post.username || post.author}`)}>
                   <div className="w-12 h-12 rounded-full flex items-center justify-center text-black font-bold shadow-lg bg-main">
                     {post.author.slice(0, 2).toUpperCase()}
                   </div>

@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { getAllPosts } from "@/lib/allarticlesgraphql";
+import { getProfile } from "@/lib/irys";
 
 // Function to truncate HTML safely
 const truncateHtml = (html: string, maxLength: number): string => {
@@ -63,6 +64,7 @@ interface Article {
   likes: number;
   comments: number;
   readTime: string;
+  username: string;
 }
 
 export function ArticlesSection() {
@@ -84,30 +86,27 @@ export function ArticlesSection() {
     const fetchPosts = async () => {
       try {
         const fetchedPosts = await getPost();
-        const formattedPosts: Article[] = fetchedPosts.map((post: any) => {
-          const author =
-            post.tags.find((t: any) => t.name === "author")?.value.slice(0, 6) +
-              "..." +
-              post.tags
-                .find((t: any) => t.name === "author")
-                ?.value.slice(-4) || "Anonymous";
-          const tempDiv = document.createElement("div");
-          tempDiv.innerHTML = post.content;
-          const plainText = tempDiv.textContent || post.content;
-          const previewHtml = truncateHtml(post.content, 500);
-          return {
-            id: post.id,
-            content: post.content,
-            author,
-            createdAt: post.timestamp,
-            likes: 0,
-            comments: 0,
-            readTime: `${Math.ceil(
-              plainText.split(" ").length / 200
-            )} min read`,
-            previewHtml,
-          };
-        });
+        const formattedPosts: Article[] = await Promise.all(
+          fetchedPosts.map(async (post: any) => {
+            const author = post.tags.find((t: any) => t.name === "author")?.value || "Anonymous";
+            const profile = await getProfile(author);
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = post.content;
+            const plainText = tempDiv.textContent || post.content;
+            const previewHtml = truncateHtml(post.content, 500);
+            return {
+              id: post.id,
+              content: post.content,
+              author: author.slice(0, 6) + "..." + author.slice(-4),
+              createdAt: post.timestamp,
+              likes: 0,
+              comments: 0,
+              readTime: `${Math.ceil(plainText.split(" ").length / 200)} min read`,
+              previewHtml,
+              username: profile?.username,
+            };
+          })
+        );
         setPosts(formattedPosts);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -136,9 +135,7 @@ export function ArticlesSection() {
         <div className="md:max-w-5xl w-full mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div className="flex gap-4 items-center">
-              <h2 className="md:text-4xl text-3xl font-bold font-display">
-                Latest Articles
-              </h2>
+              <h2 className="md:text-4xl text-3xl font-bold font-display">Latest Articles</h2>
               <p className="text-gray-400 mt-1 hidden md:block font-display-inter text-sm bg-gray-800/50 px-3 py-1 rounded-full">
                 {posts.length} articles
               </p>
@@ -150,12 +147,10 @@ export function ArticlesSection() {
               <SelectContent className="bg-gray-800 border-gray-700">
                 <SelectItem value="recent">Most Recent</SelectItem>
                 <SelectItem value="popular">Most Popular</SelectItem>
-                {/* <SelectItem value="trending">Trending</SelectItem> */}
               </SelectContent>
             </Select>
           </div>
-
-          <div className="space-y-6 w-full flex flex-col items-center ">
+          <div className="space-y-6 w-full flex flex-col items-center">
             {posts.map((article) => (
               <article
                 key={article.id}
@@ -163,26 +158,30 @@ export function ArticlesSection() {
               >
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-5">
-                    <div className="flex items-center gap-3">
+                    <div
+                      className="flex items-center gap-3 cursor-pointer"
+                      onClick={() => { 
+                        console.log("Username1", article.username)
+                        navigate(`/profile/@${article.username || article.author}`)
+                        console.log("Username", article.username)
+                      }}
+                    >
                       <div
                         className="w-11 h-11 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-lg"
                         style={{ backgroundColor: "rgb(81, 255, 214)" }}
                       >
-                        {article.author.slice(0, 2).toUpperCase()}
+                        {article.username?.slice(0, 2).toUpperCase() || article.author.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
                         <p className="font-semibold font-display-inter text-white">
-                          {article.author}
+                          {article.username ? `@${article.username}` : article.author}
                         </p>
                         <p className="text-gray-400 text-sm font-display-inter">
-                          {new Date(article.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            }
-                          )}
+                          {new Date(article.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
                         </p>
                       </div>
                     </div>
@@ -199,14 +198,9 @@ export function ArticlesSection() {
                       </Button>
                     </div>
                   </div>
-
                   <div
                     className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(
-                        article.content.slice(0, 3000)
-                      ),
-                    }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content.slice(0, 3000)) }}
                   />
                   <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
                     <div className="flex items-center gap-6 text-gray-400 font-display-inter">
@@ -235,7 +229,6 @@ export function ArticlesSection() {
                 </div>
               </article>
             ))}
-
             {allPosts.length > 9 && (
               <Button
                 className="bg-main hover:bg-main/90 btn-store_on_irys text-black font-semibold px-12 py-7 text-xl rounded-lg shadow-lg shadow-main/20 hover:shadow-xl hover:shadow-main/30 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 font-display-inter"
