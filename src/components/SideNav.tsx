@@ -6,7 +6,6 @@ import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import {
   X,
-  FileText,
   Bookmark,
   Heart,
   MessageCircle,
