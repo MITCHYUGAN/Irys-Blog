@@ -61,7 +61,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
           onClick={navtoggle}
           className="border border-gray-700 hover:bg-gray-800 bg-main btn-store_on_irys text-black font-medium px-6 py-4 text-1xl cursor-pointer"
         >
-          Profile
+          More
         </Button>
       )}
       {navToggle && (
@@ -88,7 +88,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
               account,
               chain,
               openAccountModal,
-              // openChainModal,
+              openChainModal,
               mounted,
             }) => {
               const ready = mounted;
@@ -132,7 +132,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
                         </p>
                       </div>
 
-                      {/* <button
+                      <button
                         onClick={openChainModal}
                         className="w-full bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-main/50 rounded-lg px-4 py-3 flex items-center justify-between transition-all duration-200"
                       >
@@ -162,7 +162,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
                             strokeLinecap="round"
                           />
                         </svg>
-                      </button> */}
+                      </button>
                     </>
                   )}
                 </div>
@@ -178,7 +178,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
                 className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
               >
                 <User className="w-5 h-5 mr-3" />
-                View My Articles
+                View Complete Profile
               </Button>
             </Link>
             <Button
