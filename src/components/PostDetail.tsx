@@ -153,7 +153,7 @@ export function PostDetail() {
                 </div>
 
                 <div
-                  className="markdown-content prose prose-invert max-w-none"
+                  className="markdown-content max-w-none ql-editor"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(post.content),
                   }}

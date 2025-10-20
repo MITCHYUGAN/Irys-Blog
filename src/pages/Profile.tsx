@@ -217,10 +217,10 @@ export function Profile() {
                         </div>
                       </div>
                       <div
-                        className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none"
+                        className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none ql-editor"
                         dangerouslySetInnerHTML={{
                           __html: DOMPurify.sanitize(
-                            article.content.slice(0, 3000)
+                            article.content.slice(0, 500)
                           ),
                         }}
                       />

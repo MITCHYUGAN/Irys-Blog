@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { getAllPosts } from "@/lib/allarticlesgraphql";
 import { getProfile } from "@/lib/irys";
+import "react-quill/dist/quill.snow.css";
 
 // Function to truncate HTML safely
 const truncateHtml = (html: string, maxLength: number): string => {
@@ -78,6 +79,7 @@ export function ArticlesSection() {
       try {
         const allFetchedPosts = await getAllPosts();
         setAllPosts(allFetchedPosts);
+        console.log("Fetched Posts", allFetchedPosts)
       } catch (error) {
         console.log("Error fetching All posts", error);
       }
@@ -211,14 +213,18 @@ export function ArticlesSection() {
                         </Button>
                       </div>
                     </div>
+
+                    
                     <div
-                      className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none"
+                      className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none ql-editor"
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(
                           article.content.slice(0, 3000)
                         ),
                       }}
                     />
+
+                    
                     <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
                       <div className="flex items-center gap-6 text-gray-400 font-display-inter">
                         <div className="flex items-center gap-2 hover:text-main transition-colors cursor-pointer">

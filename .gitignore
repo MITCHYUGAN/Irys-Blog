@@ -8,6 +8,9 @@ pnpm-debug.log*
 lerna-debug.log*
 src/styyyee.css
 src/pages/UserArticles.tsx
+src/components/ArticleSection.tsx
+src/components/Froala.tsx
+src/lib/graphql.ts
 
 node_modules
 dist

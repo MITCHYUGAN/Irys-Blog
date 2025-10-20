@@ -17,7 +17,7 @@ import ProfileCheckWrapper from "./components/ProfileCheckWrapper.tsx"; // Chang
 import { Button } from "./components/ui/button"; // Change: For errorElement
 import { ArrowLeft } from "lucide-react"; // Change: For errorElement
 import { Link } from "react-router-dom";
-// import ReactQuillEditor from "./components/ReactQuillEditor.tsx";
+import ReactQuillEditor from "./components/ReactQuillEditor.tsx";
 
 const customTheme = darkTheme({
   accentColor: "#00FFD1",
@@ -79,8 +79,8 @@ const router = createBrowserRouter([
                 alignItems: "center",
               }}
             >
-              {/* <ReactQuillEditor /> */}
-              <Froala />
+              <ReactQuillEditor />
+              {/* <Froala /> */}
             </div>
           </div>
         ),

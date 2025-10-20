@@ -289,3 +289,70 @@ body{
       background-color: color-mix(in oklab, #000000 80%, transparent);
     }
 }
+
+/* Custom rule to restore Quill heading sizes */
+.ql-editor h1 {
+  font-size: 2em !important;
+  margin-bottom: 0.5em !important;
+}
+
+.ql-editor h2 {
+  font-size: 1.5em !important; 
+  margin-bottom: 0.5em !important;
+}
+
+.ql-editor h3 {
+  font-size: 1.17em !important; 
+  margin-bottom: 0.5em !important;
+}
+
+.ql-editor h4 {
+  font-size: 1em !important;
+  margin-bottom: 0.5em !important;
+}
+
+.ql-editor h5 {
+  font-size: 0.83em !important;
+  margin-bottom: 0.5em !important;
+}
+
+.ql-editor h6 {
+  font-size: 0.67em !important;
+  margin-bottom: 0.5em !important;
+}
+
+/* Custom rule to style code blocks */
+.ql-editor pre.ql-syntax {
+  background-color: #1e293b !important; /* Dark background to match theme, slightly lighter than body */
+  color: #e5e7eb !important; /* Light text for readability */
+  font-family: "Courier New", Courier, monospace !important; /* Monospace font */
+  padding: 1em !important; /* Padding for code block */
+  border-radius: 0.375rem !important; /* Rounded corners */
+  overflow-x: auto !important; /* Horizontal scroll for long lines */
+  margin-bottom: 0.5em !important; /* Spacing below code block */
+  white-space: pre-wrap !important; /* Preserve whitespace and wrap if needed */
+  /* font-size: 0.875em !important; */
+  line-height: 1.5 !important; /* Better readability */
+}
+
+/* Optional: Style inline code (if present) */
+.ql-editor code {
+  background-color: #334155 !important; /* Slightly darker than pre for contrast */
+  color: #e5e7eb !important;
+  padding: 0.2em 0.4em !important;
+  border-radius: 0.25rem !important;
+  font-family: "Courier New", Courier, monospace !important;
+  /* font-size: 0.875em !important; */
+}
+
+/* Custom rule to style links */
+.ql-editor a {
+  color: var(--main-color) !important; /* Uses your theme's main color, rgb(81, 255, 214) */
+  text-decoration: underline !important; /* Standard link indicator */
+  transition: color 0.2s ease-in-out !important; /* Smooth hover transition */
+}
+
+.ql-editor a:hover {
+  color: #23edbe !important; /* Slightly darker shade for hover, rgb(35, 237, 190) */
+  text-decoration: underline !important;
+}
