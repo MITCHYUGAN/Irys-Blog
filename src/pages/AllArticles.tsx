@@ -78,7 +78,7 @@ const AllArticles = () => {
           </p>
         </div>
       ) : (
-        <div className="max-w-5xl space-y-6 text-amber-50">
+        <div className="max-w-5xl w-full space-y-6 text-amber-50">
           <Button
             variant="ghost"
             className="self-start mb-8 text-main hover:text-main/80 hover:bg-main/10 transition-all font-display-inter"
