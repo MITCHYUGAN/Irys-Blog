@@ -6,7 +6,7 @@ import { Loader2, Upload } from "lucide-react";
 import { getIrysUploader } from "@/lib/irys";
 import { useAccount } from "wagmi";
 import { useNavigate } from "react-router-dom";
-import { ethers, AddressLike } from "ethers";
+import { ethers, type AddressLike } from "ethers";
 
 const ReactQuillEditor = () => {
   const [value, setValue] = useState("");
