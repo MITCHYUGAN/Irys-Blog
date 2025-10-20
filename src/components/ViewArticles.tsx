@@ -76,9 +76,6 @@ const ViewArticles = () => {
     console.log("Articles", articles);
   }, []);
 
-  // if (loading) return <div>Loading articles...</div>;
-  // if (!articles) return <div>All Articles</div>;
-
     return (
       <section className="px-6 flex flex-col items-center py-12 text-white font-oswald">
         <div className="w-[90%] flex md:flex-row flex-col gap-8">
@@ -115,7 +112,7 @@ const ViewArticles = () => {
                 {articles.map((article) => (
                   <article
                     key={article.id}
-                    className="w-full bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden transition-all duration-300 border border-gray-700/50 hover:border-main/30 hover:shadow-lg hover:shadow-main/10 group"
+                    className="w-full ql-editor bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden transition-all duration-300 border border-gray-700/50 hover:border-main/30 hover:shadow-lg hover:shadow-main/10 group"
                   >
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-5">

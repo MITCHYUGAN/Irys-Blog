@@ -18,7 +18,7 @@ export async function queryGraphQL(query: string) {
 // Fetch all posts (latest 10)
 export async function getPost() {
   const fromTimestamp = Date.now() - 30 * 24 * 60 * 60 * 1000; // 30 days ago
-  const toTimestamp = Date.now(); // Now
+  const toTimestamp = Date.now();
   const query = `
     query {
       transactions(

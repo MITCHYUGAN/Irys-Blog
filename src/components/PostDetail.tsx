@@ -1,7 +1,6 @@
 "use client";
 
 import { useNavigate, useParams } from "react-router-dom";
-import { getPost } from "@/lib/graphql";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -15,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import DOMPurify from "dompurify";
 import Navbar from "./Navbar";
 import { getProfile } from "@/lib/irys";
+import getArticles from "@/lib/queryallarticles";
 
 interface Article {
   id: string;
@@ -36,7 +36,7 @@ export function PostDetail() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const fetchedPosts = await getPost();
+        const fetchedPosts = await getArticles();
         const foundPost = fetchedPosts.find((p: any) => p.id === id);
         if (foundPost) {
           const author =
@@ -102,7 +102,7 @@ export function PostDetail() {
               <ArrowLeft className="w-4 h-4 mr-2" /> Back to Articles
             </Button>
 
-            <article className="bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden border border-gray-700/50 shadow-2xl">
+            <article className="bg-gradient-to-br from-gray-800/90 to-gray-800/70 rounded-xl overflow-hidden border border-gray-700/50 shadow-2xl ql-editor">
               <div className="p-8 md:p-10">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-700/50">

@@ -16,7 +16,6 @@ const ReactQuillEditor = () => {
   const [buttonText, setButtonText] = useState("Publish to Irys");
   const quillRef = useRef(null);
 
-
   const UploadContentToIrys = async (e) => {
     e.preventDefault();
     setUploading(true);
@@ -167,7 +166,7 @@ const ReactQuillEditor = () => {
   return (
     <>
       <form
-        className="w-full max-w-[85%] flex flex-col items-center gap-10"
+        className="w-full max-w-[85%] flex flex-col items-center gap-10 form"
         action=""
         onSubmit={UploadContentToIrys}
       >

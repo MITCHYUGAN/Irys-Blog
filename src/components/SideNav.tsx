@@ -88,7 +88,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
               account,
               chain,
               openAccountModal,
-              openChainModal,
+              // openChainModal,
               mounted,
             }) => {
               const ready = mounted;
@@ -132,7 +132,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
                         </p>
                       </div>
 
-                      <button
+                      {/* <button
                         onClick={openChainModal}
                         className="w-full bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-main/50 rounded-lg px-4 py-3 flex items-center justify-between transition-all duration-200"
                       >
@@ -162,7 +162,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
                             strokeLinecap="round"
                           />
                         </svg>
-                      </button>
+                      </button> */}
                     </>
                   )}
                 </div>

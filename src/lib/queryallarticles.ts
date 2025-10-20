@@ -1,22 +1,24 @@
+const fromTimestamp = 1760768587663 // 30 days ago
+const toTimestamp = Date.now();
+
 const query = `
-    query getByIds {
-	    transactions(
-            tags: [
-                {name: "application-id", values: "${
-                  import.meta.env.VITE_APPLICATION_ID
-                }" }
-                {name: "type", values: "${import.meta.env.VITE_TYPE}"}
-            ],
-            order: DESC,
+  query getByIds {
+	  transactions(
+      tags: [
+        {name: "application-id", values: "${import.meta.env.VITE_APPLICATION_ID}" }
+        {name: "type", values: "${import.meta.env.VITE_TYPE}"}
+      ],
+      timestamp: { from: ${fromTimestamp}, to: ${toTimestamp} },
+      order: DESC,
     ) {
 		edges {
 			node {
 				id
-                tags {
-                    name
-                    value
-                }
-                    timestamp
+        tags {
+              name
+              value
+        }
+        timestamp
 			}
 		}
 	}

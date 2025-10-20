@@ -72,9 +72,7 @@ export function Profile() {
         // Fetch posts by author (wallet address from profile)
         const fetchedPosts = await getUserPost(profileData.author);
         const formattedPosts: Article[] = fetchedPosts.map((post: any) => {
-          const tempDiv = document.createElement("div");
-          tempDiv.innerHTML = post.content;
-          const plainText = tempDiv.textContent || post.content;
+          const plainText = post.content;
           return {
             id: post.id,
             content: post.content,
