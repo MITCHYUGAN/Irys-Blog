@@ -59,7 +59,7 @@ const ReactQuillEditor = () => {
         // Calculate upload cost based on content size
         const contentSize = new Blob([value]).size; // Size in bytes
         const priceAtomic = await irys.getPrice(contentSize);
-        const price = irys.utils.fromAtomic(priceAtomic);
+        const price = irys.utils.fromAtomic(priceAtomic).toString();
         console.log(`Insufficient Balance ${balance}. You need: ${price} ETH`);
 
         // Check wallet balance
