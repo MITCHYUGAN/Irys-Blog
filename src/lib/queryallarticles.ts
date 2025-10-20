@@ -1,4 +1,4 @@
-const fromTimestamp = 1760768587663 // 30 days ago
+const fromTimestamp = 1760768587663
 const toTimestamp = Date.now();
 
 const query = `

@@ -1,6 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import DOMPurify from "dompurify";
+import { getAllPosts } from "@/lib/allarticlesgraphql";
+import { getProfile } from "@/lib/irys";
+import "react-quill/dist/quill.snow.css";
 import {
   Select,
   SelectContent,
@@ -19,43 +23,40 @@ import { Sidebar } from "./SideBar";
 import { getPost } from "@/lib/graphql";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DOMPurify from "dompurify";
-import { getAllPosts } from "@/lib/allarticlesgraphql";
-import { getProfile } from "@/lib/irys";
-import "react-quill/dist/quill.snow.css";
+
 
 // Function to truncate HTML safely
-const truncateHtml = (html: string, maxLength: number): string => {
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = html;
-  let textLength = 0;
-  let truncatedHtml = "";
+// const truncateHtml = (html: string, maxLength: number): string => {
+//   const tempDiv = document.createElement("div");
+//   tempDiv.innerHTML = html;
+//   let textLength = 0;
+//   let truncatedHtml = "";
 
-  const traverseNodes = (node: Node) => {
-    if (textLength >= maxLength) return;
-    if (node.nodeType === Node.TEXT_NODE) {
-      const text = node.textContent || "";
-      if (textLength + text.length <= maxLength) {
-        truncatedHtml += text;
-        textLength += text.length;
-      } else {
-        truncatedHtml += text.slice(0, maxLength - textLength) + "...";
-        textLength = maxLength;
-      }
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const element = node as Element;
-      if (element.tagName.toLowerCase() === "img") {
-        truncatedHtml += element.outerHTML;
-        textLength += element.textContent?.length || 0; // Approximate length
-        if (textLength >= maxLength) return;
-      }
-      Array.from(element.childNodes).forEach(traverseNodes);
-    }
-  };
+//   const traverseNodes = (node: Node) => {
+//     if (textLength >= maxLength) return;
+//     if (node.nodeType === Node.TEXT_NODE) {
+//       const text = node.textContent || "";
+//       if (textLength + text.length <= maxLength) {
+//         truncatedHtml += text;
+//         textLength += text.length;
+//       } else {
+//         truncatedHtml += text.slice(0, maxLength - textLength) + "...";
+//         textLength = maxLength;
+//       }
+//     } else if (node.nodeType === Node.ELEMENT_NODE) {
+//       const element = node as Element;
+//       if (element.tagName.toLowerCase() === "img") {
+//         truncatedHtml += element.outerHTML;
+//         textLength += element.textContent?.length || 0; // Approximate length
+//         if (textLength >= maxLength) return;
+//       }
+//       Array.from(element.childNodes).forEach(traverseNodes);
+//     }
+//   };
 
-  traverseNodes(tempDiv);
-  return truncatedHtml || html.slice(0, maxLength) + "...";
-};
+//   traverseNodes(tempDiv);
+//   return truncatedHtml || html.slice(0, maxLength) + "...";
+// };
 
 interface Article {
   id: string;
@@ -94,10 +95,7 @@ export function ArticlesSection() {
               post.tags.find((t: any) => t.name === "author")?.value ||
               "Anonymous";
             const profile = await getProfile(author);
-            const tempDiv = document.createElement("div");
-            tempDiv.innerHTML = post.content;
-            const plainText = tempDiv.textContent || post.content;
-            const previewHtml = truncateHtml(post.content, 500);
+            const plainText = post.content;
             return {
               id: post.id,
               content: post.content,
@@ -108,7 +106,6 @@ export function ArticlesSection() {
               readTime: `${Math.ceil(
                 plainText.split(" ").length / 200
               )} min read`,
-              previewHtml,
               username: profile?.username,
             };
           })
@@ -219,7 +216,7 @@ export function ArticlesSection() {
                       className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none ql-editor"
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(
-                          article.content.slice(0, 3000)
+                          article.content.slice(0, 500)
                         ),
                       }}
                     />

@@ -16,7 +16,8 @@ export async function queryGraphQL(query: string) {
 
 export async function getUserPost(address?: string) {
 const userAddress = address;  // Default or from param
-  const fromTimestamp = Date.now() - 30 * 24 * 60 * 60 * 1000; // 30 days ago
+  // const fromTimestamp = Date.now() - 30 * 24 * 60 * 60 * 1000; // 30 days ago
+  const fromTimestamp = 1760768587663;
   const toTimestamp = Date.now(); // Now
   const query = `
     query {
