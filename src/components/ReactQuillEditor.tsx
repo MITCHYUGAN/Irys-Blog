@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ReactQuill from "react-quill";
+import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Button } from "./ui/button";
 import { Loader2, Upload } from "lucide-react";
@@ -39,6 +39,47 @@ const ReactQuillEditor = () => {
     }
   };
 
+  const modules = {
+    toolbar: [
+      [{ header: "1" }, { header: "2" }, { font: [] }],
+      [{ size: [] }],
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["link", "image", "video"],
+      ["clean"],
+    ],
+    clipboard: {
+      // toggle to add extra line breaks when pasting HTML:
+      matchVisual: false,
+    },
+    // imageResize: {
+    //   parchment: Quill.import("parchment"),
+    //   modules: ["Resize", "DisplaySize"],
+    // },
+  };
+
+  const formats = [
+    "header",
+    "font",
+    "size",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "blockquote",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+    "video",
+  ];
+
   return (
     <>
       <form
@@ -46,11 +87,25 @@ const ReactQuillEditor = () => {
         action=""
         onSubmit={UploadContentToIrys}
       >
-        <ReactQuill
+        {/* <ReactQuill
           theme="snow"
           value={value}
           onChange={setValue}
           className="bg-white w-full"
+        /> */}
+
+        <ReactQuill
+          // theme={this.state.theme}
+          // onChange={this.handleChange}
+          // value={this.state.editorHtml}
+          // placeholder={this.props.placeholder}
+          modules={modules}
+          formats={formats}
+          bounds={"#root"}
+          theme="snow"
+          value={value}
+          onChange={setValue}
+          className="bg-white w-full min-h-[50vh]"
         />
         <Button
           type="submit"
@@ -73,5 +128,10 @@ const ReactQuillEditor = () => {
     </>
   );
 };
+
+/*
+ * Quill editor formats
+ * See https://quilljs.com/docs/formats/
+ */
 
 export default ReactQuillEditor;

@@ -13,9 +13,9 @@ export const getIrysUploader = async () => {
     }
 
     const provider = new ethers.BrowserProvider(window.ethereum);
-    // const rpcUrl = "https://ethereum-sepolia-rpc.publicnode.com";
+    const rpcUrl = "https://ethereum-sepolia-rpc.publicnode.com";
     // const rpcUrl = "https://devnet.irys.xyz/";
-    const rpcUrl = "https://testnet-rpc.irys.xyz/v1/execution-rpc";
+    // const rpcUrl = "https://testnet-rpc.irys.xyz/v1/execution-rpc";
     const uploader = await WebUploader(WebEthereum)
         .withAdapter(EthersV6Adapter(provider))
         .withRpc(rpcUrl)

@@ -356,3 +356,11 @@ body{
   color: #23edbe !important; /* Slightly darker shade for hover, rgb(35, 237, 190) */
   text-decoration: underline !important;
 }
+
+.ql-container{
+  min-height: 50vh !important;
+}
+
+.ql-editor{
+  min-height: 50vh !important;
+}
