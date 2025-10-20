@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "@/lib/irys";
-import { getPost } from "@/lib/graphql";
 
 interface Article {
   id: string;
@@ -34,7 +33,7 @@ const AllArticles = () => {
   useEffect(() => {
     const fetchPosts = async () => {
           try {
-            const fetchedPosts = await getPost();
+            const fetchedPosts = await getAllPosts();
             const formattedPosts: Article[] = await Promise.all(
               fetchedPosts.map(async (post: any) => {
                 const author =
