@@ -9,7 +9,7 @@ const ProfileCheckWrapper = () => {
   const { address } = useAccount();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [, setRefreshKey] = useState(0);
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", address],
