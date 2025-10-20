@@ -71,8 +71,12 @@ const ViewArticles = () => {
         setLoading(false);
       }
     };
-
+    
     fetchArticles();
+    // const interval = setInterval(fetchArticles, 30000); // Poll every 30 seconds
+
+    // return () => clearInterval(interval);
+
     console.log("Articles", articles);
   }, []);
 

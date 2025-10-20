@@ -16,6 +16,15 @@ import Navbar from "./Navbar";
 import { getProfile } from "@/lib/irys";
 import getArticles from "@/lib/queryallarticles";
 
+// Define the raw post type returned by getArticles()
+interface RawPost {
+  id: string;
+  content: string;
+  tags: { name: string; value: string }[];
+  timestamp: number;
+  [key: string]: any; // Allow additional fields for flexibility
+}
+
 interface Article {
   id: string;
   content: string;
@@ -36,8 +45,8 @@ export function PostDetail() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const fetchedPosts = await getArticles();
-        const foundPost = fetchedPosts.find((p: any) => p.id === id);
+        const fetchedPosts = await getArticles() as RawPost[];
+        const foundPost = fetchedPosts.find((p: RawPost) => p.id === id);
         if (foundPost) {
           const author =
             foundPost.tags.find((t: any) => t.name === "author")?.value ||
