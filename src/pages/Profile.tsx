@@ -46,12 +46,12 @@ export function Profile() {
       try {
         const cleanedUsername = username?.replace(/^@/, "") || "";
 
-        let isOwnProfile = false;
+        // let isOwnProfile = false;
         if (address) {
           const currentProfile = await getProfile(address);
           
           if (currentProfile && currentProfile.username !== cleanedUsername) {
-            isOwnProfile = true;
+            // isOwnProfile = true;
             // navigate(`/profile/@${currentProfile.username}`);
             // return;
           }
