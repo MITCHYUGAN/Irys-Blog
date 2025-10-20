@@ -76,8 +76,8 @@ const ViewArticles = () => {
     console.log("Articles", articles);
   }, []);
 
-  if (loading) return <div>Loading articles...</div>;
-  if (!articles) return <div>All Articles</div>;
+  // if (loading) return <div>Loading articles...</div>;
+  // if (!articles) return <div>All Articles</div>;
 
     return (
       <section className="px-6 flex flex-col items-center py-12 text-white font-oswald">
