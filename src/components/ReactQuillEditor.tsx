@@ -6,7 +6,7 @@ import { Loader2, Upload } from "lucide-react";
 import { getIrysUploader } from "@/lib/irys";
 import { useAccount } from "wagmi";
 import { useNavigate } from "react-router-dom";
-import { ethers } from "ethers";
+import { ethers, AddressLike } from "ethers";
 
 const ReactQuillEditor = () => {
   const [value, setValue] = useState("");
@@ -16,7 +16,7 @@ const ReactQuillEditor = () => {
   const [buttonText, setButtonText] = useState("Publish to Irys");
   const quillRef = useRef(null);
 
-  const UploadContentToIrys = async (e) => {
+  const UploadContentToIrys = async (e: any) => {
     e.preventDefault();
     setUploading(true);
     setButtonText("Publishing...");
@@ -64,7 +64,7 @@ const ReactQuillEditor = () => {
 
         // Check wallet balance
         const provider = new ethers.BrowserProvider(window.ethereum);
-        const walletBalance = await provider.getBalance(address);
+        const walletBalance = await provider.getBalance(address as AddressLike);
         const walletBalanceEth = ethers.formatEther(walletBalance);
 
         if (parseFloat(walletBalanceEth) < parseFloat(price)) {

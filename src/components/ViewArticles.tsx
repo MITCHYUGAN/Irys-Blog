@@ -24,10 +24,10 @@ import { Sidebar } from "./SideBar";
 interface Articles {
   content: string;
   id: string;
-  username: string;
+  username: string | undefined;
   createdAt: number;
   author: string; // Remove soon
-  likes: string;
+  likes: number;
   comments: number;
   readTime: string;
 }
