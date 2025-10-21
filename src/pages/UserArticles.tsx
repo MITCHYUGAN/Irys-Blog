@@ -1,38 +1,48 @@
-"use client"
-import Navbar from "@/components/Navbar"
-import { Button } from "@/components/ui/button"
-import { getUserPost } from "@/lib/userarticlegraphql"
-import { ArrowRight, Bookmark, Clock, Heart, MessageCircle, FileText, User } from "lucide-react"
-import { useEffect, useState } from "react"
-import DOMPurify from "dompurify"
-import { useNavigate } from "react-router-dom"
-import { useAccount } from "wagmi"
+"use client";
+import Navbar from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import { getUserPost } from "@/lib/queriesGraphQL/userarticlegraphql";
+import {
+  ArrowRight,
+  Bookmark,
+  Clock,
+  Heart,
+  MessageCircle,
+  FileText,
+  User,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import DOMPurify from "dompurify";
+import { useNavigate } from "react-router-dom";
+import { useAccount } from "wagmi";
 
 interface Article {
-  id: string
-  content: string
-  author: string
-  createdAt: number
-  likes: number
-  comments: number
-  readTime: string
+  id: string;
+  content: string;
+  author: string;
+  createdAt: number;
+  likes: number;
+  comments: number;
+  readTime: string;
 }
 
 const UserArticles = () => {
-  const [posts, setPosts] = useState<Article[]>([])
-  const [loading, setLoading] = useState(true)
-  const { address } = useAccount()
-  const navigate = useNavigate()
+  const [posts, setPosts] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { address } = useAccount();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
-        const fetchedPosts = await getUserPost(address)
+        const fetchedPosts = await getUserPost(address);
         const formattedPosts: Article[] = fetchedPosts.map((post: any) => {
           const author =
             post.tags.find((t: any) => t.name === "author")?.value.slice(0, 6) +
-            "..." +
-            post.tags.find((t: any) => t.name === "author")?.value.slice(-4) || "Anonymous"
+              "..." +
+              post.tags
+                .find((t: any) => t.name === "author")
+                ?.value.slice(-4) || "Anonymous";
           return {
             id: post.id,
             content: post.content,
@@ -40,29 +50,33 @@ const UserArticles = () => {
             createdAt: post.timestamp,
             likes: 0,
             comments: 0,
-            readTime: `${Math.ceil(post.content.split(" ").length / 200)} min read`,
-          }
-        })
-        setPosts(formattedPosts)
+            readTime: `${Math.ceil(
+              post.content.split(" ").length / 200
+            )} min read`,
+          };
+        });
+        setPosts(formattedPosts);
       } catch (error) {
-        console.error("Error fetching posts:", error)
+        console.error("Error fetching posts:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUserPosts()
-  }, [address])
+    fetchUserPosts();
+  }, [address]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-main border-t-transparent mb-4"></div>
-          <p className="text-gray-400 font-display-inter">Loading your articles...</p>
+          <p className="text-gray-400 font-display-inter">
+            Loading your articles...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -77,10 +91,13 @@ const UserArticles = () => {
             <User className="w-10 h-10" />
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 font-display">My Articles</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-3 font-display">
+            My Articles
+          </h1>
 
           <p className="text-gray-400 text-lg font-display-inter mb-6">
-            {posts.length} {posts.length === 1 ? "article" : "articles"} published
+            {posts.length} {posts.length === 1 ? "article" : "articles"}{" "}
+            published
           </p>
 
           <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-gray-700/30 border border-gray-600/50">
@@ -96,8 +113,12 @@ const UserArticles = () => {
         {posts.length === 0 ? (
           <div className="text-center py-20">
             <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold mb-2 font-display">No articles yet</h3>
-            <p className="text-gray-400 mb-6 font-display-inter">Start writing to see your articles here</p>
+            <h3 className="text-2xl font-bold mb-2 font-display">
+              No articles yet
+            </h3>
+            <p className="text-gray-400 mb-6 font-display-inter">
+              Start writing to see your articles here
+            </p>
             <Button
               onClick={() => navigate("/write")}
               className="bg-main hover:bg-main/90 text-black font-semibold px-6 py-3 rounded-lg shadow-lg shadow-main/20 hover:shadow-xl hover:shadow-main/30 transition-all duration-300 hover:scale-105"
@@ -119,13 +140,18 @@ const UserArticles = () => {
                         {article.author.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-semibold font-display-inter text-white">{article.author}</p>
+                        <p className="font-semibold font-display-inter text-white">
+                          {article.author}
+                        </p>
                         <p className="text-gray-400 text-sm font-display-inter">
-                          {new Date(article.createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
+                          {new Date(article.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )}
                         </p>
                       </div>
                     </div>
@@ -143,8 +169,13 @@ const UserArticles = () => {
                     </div>
                   </div>
 
-                  <div className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none "
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content.slice(0, 3000)) }}
+                  <div
+                    className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none "
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        article.content.slice(0, 3000)
+                      ),
+                    }}
                   />
 
                   <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
@@ -178,7 +209,7 @@ const UserArticles = () => {
         )}
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default UserArticles
+export default UserArticles;

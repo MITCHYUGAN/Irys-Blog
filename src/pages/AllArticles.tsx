@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import { getAllPosts } from "@/lib/allarticlesgraphql";
+import { getAllPosts } from "@/lib/queriesGraphQL/allarticlesgraphql";
 import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
@@ -32,36 +32,36 @@ const AllArticles = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
-          try {
-            const fetchedPosts = await getAllPosts();
-            const formattedPosts: Article[] = await Promise.all(
-              fetchedPosts.map(async (post: any) => {
-                const author =
-                  post.tags.find((t: any) => t.name === "author")?.value ||
-                  "Anonymous";
-                const profile = await getProfile(author);
-                const plainText = post.content;
-                return {
-                  id: post.id,
-                  content: post.content,
-                  author: author.slice(0, 6) + "..." + author.slice(-4),
-                  createdAt: post.timestamp,
-                  likes: 0,
-                  comments: 0,
-                  readTime: `${Math.ceil(
-                    plainText.split(" ").length / 200
-                  )} min read`,
-                  username: profile?.username,
-                };
-              })
-            );
-            setPosts(formattedPosts);
-          } catch (error) {
-            console.error("Error fetching posts:", error);
-          } finally {
-            setLoading(false);
-          }
-        };
+      try {
+        const fetchedPosts = await getAllPosts();
+        const formattedPosts: Article[] = await Promise.all(
+          fetchedPosts.map(async (post: any) => {
+            const author =
+              post.tags.find((t: any) => t.name === "author")?.value ||
+              "Anonymous";
+            const profile = await getProfile(author);
+            const plainText = post.content;
+            return {
+              id: post.id,
+              content: post.content,
+              author: author.slice(0, 6) + "..." + author.slice(-4),
+              createdAt: post.timestamp,
+              likes: 0,
+              comments: 0,
+              readTime: `${Math.ceil(
+                plainText.split(" ").length / 200
+              )} min read`,
+              username: profile?.username,
+            };
+          })
+        );
+        setPosts(formattedPosts);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchPosts();
   }, []);
@@ -92,41 +92,39 @@ const AllArticles = () => {
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-5">
-                      <div
-                        className="flex items-center gap-3 cursor-pointer"
-                        onClick={() => {
-                          console.log("Username1", article.username);
-                          navigate(
-                            `/profile/@${article.username}`
-                          );
-                          console.log("Username", article.username);
-                        }}
-                      >
-                        <div
-                          className="w-11 h-11 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-lg"
-                          style={{ backgroundColor: "rgb(81, 255, 214)" }}
-                        >
-                          {article.username?.slice(0, 2).toUpperCase() ||
-                            article.author.slice(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-semibold font-display-inter text-white">
-                            {article.username
-                              ? `@${article.username}`
-                              : article.author}
-                          </p>
-                          <p className="text-gray-400 text-sm font-display-inter">
-                            {new Date(article.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
-                            )}
-                          </p>
-                        </div>
-                      </div>
+                  <div
+                    className="flex items-center gap-3 cursor-pointer"
+                    onClick={() => {
+                      console.log("Username1", article.username);
+                      navigate(`/profile/@${article.username}`);
+                      console.log("Username", article.username);
+                    }}
+                  >
+                    <div
+                      className="w-11 h-11 rounded-full flex items-center justify-center text-black font-bold text-sm shadow-lg"
+                      style={{ backgroundColor: "rgb(81, 255, 214)" }}
+                    >
+                      {article.username?.slice(0, 2).toUpperCase() ||
+                        article.author.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-semibold font-display-inter text-white">
+                        {article.username
+                          ? `@${article.username}`
+                          : article.author}
+                      </p>
+                      <p className="text-gray-400 text-sm font-display-inter">
+                        {new Date(article.createdAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          }
+                        )}
+                      </p>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-3">
                     <span className="px-3 py-1 rounded-full text-xs font-medium bg-main/10 text-main border border-main/20">
                       Blog

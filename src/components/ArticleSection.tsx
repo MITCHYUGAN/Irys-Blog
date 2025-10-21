@@ -2,8 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import DOMPurify from "dompurify";
-import { getAllPosts } from "@/lib/allarticlesgraphql";
-import { getProfile } from "@/lib/irys";
+import { getAllPosts } from "@/lib/queriesGraphQL/allarticlesgraphql";
+import { getIrysUploader, getProfile } from "@/lib/irys";
 import "react-quill/dist/quill.snow.css";
 import {
   Select,
@@ -20,10 +20,14 @@ import {
   Bookmark,
 } from "lucide-react";
 import { Sidebar } from "./SideBar";
-import { getPost } from "@/lib/graphql";
+import { getPost } from "@/lib/queriesGraphQL/graphql";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useAccount } from "wagmi";
+import {
+  getBooksmarks,
+  isBookmarked,
+} from "@/lib/queriesGraphQL/querybookmarks";
 
 // Function to truncate HTML safely
 // const truncateHtml = (html: string, maxLength: number): string => {
@@ -73,14 +77,55 @@ export function ArticlesSection() {
   const [posts, setPosts] = useState<Article[]>([]);
   const [allPosts, setAllPosts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const { address } = useAccount();
   const navigate = useNavigate();
+
+  const handleBookmark = async (postId: any) => {
+    console.log("Bookmark Clicked");
+    console.log("postID", postId);
+
+    if (!address) {
+      alert("Please connect your wallet to bookmark articles.");
+      return;
+    }
+
+    // check if post is already bookmarked
+    const alreadyBookmarked = await isBookmarked(postId);
+    if (alreadyBookmarked) {
+      alert("Article already bookmarked");
+      return;
+    }
+
+    const dataToUpload = postId;
+
+    const tags = [
+      {
+        name: "application-id",
+        value: `${import.meta.env.VITE_APPLICATION_ID}`,
+      },
+      { name: "type", value: "test11-bookmarks" },
+      { name: "author", value: `${address}` },
+      { name: "Content-Type", value: "text/plain" },
+      { name: "post-id", value: `${postId}` },
+    ];
+
+    try {
+      const irys = await getIrysUploader();
+      const receipt = await irys.upload(dataToUpload, { tags });
+      console.log(
+        `Upload Successfully. https://gateway.irys.xyz/${receipt.id}`
+      );
+    } catch (error) {
+      console.log("error while uploading", error);
+    }
+  };
 
   useEffect(() => {
     const fetchAllPosts = async () => {
       try {
         const allFetchedPosts = await getAllPosts();
         setAllPosts(allFetchedPosts);
-        console.log("Fetched Posts", allFetchedPosts)
+        console.log("Fetched Posts", allFetchedPosts);
       } catch (error) {
         console.log("Error fetching All posts", error);
       }
@@ -166,9 +211,7 @@ export function ArticlesSection() {
                         className="flex items-center gap-3 cursor-pointer"
                         onClick={() => {
                           console.log("Username1", article.username);
-                          navigate(
-                            `/profile/@${article.username}`
-                          );
+                          navigate(`/profile/@${article.username}`);
                           console.log("Username", article.username);
                         }}
                       >
@@ -205,13 +248,13 @@ export function ArticlesSection() {
                           variant="ghost"
                           size="sm"
                           className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
+                          onClick={() => handleBookmark(article.id)}
                         >
                           <Bookmark className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
 
-                    
                     <div
                       className="markdown-content mb-5 text-gray-300 prose prose-invert max-w-none ql-editor"
                       dangerouslySetInnerHTML={{
@@ -221,7 +264,6 @@ export function ArticlesSection() {
                       }}
                     />
 
-                    
                     <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
                       <div className="flex items-center gap-6 text-gray-400 font-display-inter">
                         <div className="flex items-center gap-2 hover:text-main transition-colors cursor-pointer">

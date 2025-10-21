@@ -13,7 +13,10 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import { getProfileByUsername, getUserPost } from "@/lib/userarticlegraphql";
+import {
+  getProfileByUsername,
+  getUserPost,
+} from "@/lib/queriesGraphQL/userarticlegraphql";
 import { useAccount } from "wagmi";
 import { getProfile } from "@/lib/irys";
 
@@ -49,13 +52,13 @@ export function Profile() {
         // let isOwnProfile = false;
         if (address) {
           const currentProfile = await getProfile(address);
-          
+
           if (currentProfile && currentProfile.username !== cleanedUsername) {
             // isOwnProfile = true;
             // navigate(`/profile/@${currentProfile.username}`);
             // return;
           }
-          
+
           // if (!currentProfile && cleanedUsername) {
           //   navigate("/");
           //   return;

@@ -17,6 +17,7 @@ import { Button } from "./components/ui/button"; // Change: For errorElement
 import { ArrowLeft } from "lucide-react"; // Change: For errorElement
 import { Link } from "react-router-dom";
 import ReactQuillEditor from "./components/ReactQuillEditor.tsx";
+import BookMarks from "./pages/BookMarks.tsx";
 
 const customTheme = darkTheme({
   accentColor: "#00FFD1",
@@ -104,6 +105,14 @@ const router = createBrowserRouter([
         element: (
           <div className="app-container">
             <Profile />
+          </div>
+        ),
+      },
+      {
+        path: "/me/bookmarks",
+        element: (
+          <div className="app-container">
+            <BookMarks />
           </div>
         ),
       },

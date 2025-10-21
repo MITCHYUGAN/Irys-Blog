@@ -18,7 +18,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
   const [navToggle, setNavToggle] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
   const [bio, setBio] = useState<string | null>(null);
-  const {disconnect} = useDisconnect()
+  const { disconnect } = useDisconnect();
 
   const fetchProfile = async () => {
     if (address) {
@@ -181,13 +181,15 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
                 View Complete Profile
               </Button>
             </Link>
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
-            >
-              <Bookmark className="w-5 h-5 mr-3" />
-              Bookmarks <span className="text-[10px]">(Coming soon...)</span>
-            </Button>
+            <Link to={"/me/bookmarks"}>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
+              >
+                <Bookmark className="w-5 h-5 mr-3" />
+                Bookmarks
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
@@ -203,7 +205,9 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
               Comments <span className="text-[10px]">(Coming soon...)</span>
             </Button>
           </div>
-          <Button variant={"secondary"} onClick={() => disconnect()}>Disconnect Profile</Button>
+          <Button variant={"secondary"} onClick={() => disconnect()}>
+            Disconnect Profile
+          </Button>
         </div>
       </div>
     </div>
