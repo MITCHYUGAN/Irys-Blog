@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import DOMPurify from "dompurify";
 import { getAllPosts } from "@/lib/queriesGraphQL/allarticlesgraphql";
-import { getIrysUploader, getProfile } from "@/lib/irys";
+import { getProfile } from "@/lib/irys";
 import "react-quill/dist/quill.snow.css";
 import {
   Select,
@@ -23,11 +23,10 @@ import { Sidebar } from "./SideBar";
 import { getPost } from "@/lib/queriesGraphQL/graphql";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAccount } from "wagmi";
 import {
-  getBooksmarks,
-  isBookmarked,
+  handleBookmark,
 } from "@/lib/queriesGraphQL/querybookmarks";
+import { useAccount } from "wagmi";
 
 // Function to truncate HTML safely
 // const truncateHtml = (html: string, maxLength: number): string => {
@@ -77,48 +76,8 @@ export function ArticlesSection() {
   const [posts, setPosts] = useState<Article[]>([]);
   const [allPosts, setAllPosts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const { address } = useAccount();
+  const {address} = useAccount()
   const navigate = useNavigate();
-
-  const handleBookmark = async (postId: any) => {
-    console.log("Bookmark Clicked");
-    console.log("postID", postId);
-
-    if (!address) {
-      alert("Please connect your wallet to bookmark articles.");
-      return;
-    }
-
-    // check if post is already bookmarked
-    const alreadyBookmarked = await isBookmarked(postId);
-    if (alreadyBookmarked) {
-      alert("Article already bookmarked");
-      return;
-    }
-
-    const dataToUpload = postId;
-
-    const tags = [
-      {
-        name: "application-id",
-        value: `${import.meta.env.VITE_APPLICATION_ID}`,
-      },
-      { name: "type", value: "test11-bookmarks" },
-      { name: "author", value: `${address}` },
-      { name: "Content-Type", value: "text/plain" },
-      { name: "post-id", value: `${postId}` },
-    ];
-
-    try {
-      const irys = await getIrysUploader();
-      const receipt = await irys.upload(dataToUpload, { tags });
-      console.log(
-        `Upload Successfully. https://gateway.irys.xyz/${receipt.id}`
-      );
-    } catch (error) {
-      console.log("error while uploading", error);
-    }
-  };
 
   useEffect(() => {
     const fetchAllPosts = async () => {
@@ -186,7 +145,7 @@ export function ArticlesSection() {
                   Latest Articles
                 </h2>
                 <p className="text-gray-400 mt-1 hidden md:block font-display-inter text-sm bg-gray-800/50 px-3 py-1 rounded-full">
-                  {posts.length} articles
+                  {allPosts.length} articles
                 </p>
               </div>
               <Select defaultValue="recent">
@@ -248,7 +207,10 @@ export function ArticlesSection() {
                           variant="ghost"
                           size="sm"
                           className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
-                          onClick={() => handleBookmark(article.id)}
+                          onClick={() => {
+                            console.log("addresss", address)
+                            handleBookmark(address, article.id)
+                          }}
                         >
                           <Bookmark className="w-4 h-4" />
                         </Button>

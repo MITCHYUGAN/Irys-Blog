@@ -7,6 +7,7 @@ import { getIrysUploader } from "@/lib/irys";
 import { useAccount } from "wagmi";
 import { useNavigate } from "react-router-dom";
 import { ethers, type AddressLike } from "ethers";
+import Footer from "./Footer";
 
 const ReactQuillEditor = () => {
   const [value, setValue] = useState("");
@@ -18,6 +19,12 @@ const ReactQuillEditor = () => {
 
   const UploadContentToIrys = async (e: any) => {
     e.preventDefault();
+
+    if(!value){
+      alert("Can't upload empty content")
+      return;
+    }
+
     setUploading(true);
     setButtonText("Publishing...");
     console.log("Value", value);
@@ -166,7 +173,7 @@ const ReactQuillEditor = () => {
   return (
     <>
       <form
-        className="w-full max-w-[85%] flex flex-col items-center gap-10 form"
+        className="w-full mb-20 max-w-[85%] flex flex-col items-center gap-10 form"
         action=""
         onSubmit={UploadContentToIrys}
       >
@@ -200,6 +207,7 @@ const ReactQuillEditor = () => {
           )}
         </Button>
       </form>
+      <Footer />
     </>
   );
 };

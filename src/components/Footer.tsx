@@ -9,7 +9,8 @@ const Footer = () => {
     const setFooterPosition = () => {
       const footer = document.querySelector("footer")
       if (footer) {
-        footer.style.position = window.innerHeight > document.body.offsetHeight ? "fixed" : "relative"
+        footer.style.position = "relative"
+        // footer.style.position = window.innerHeight > document.body.offsetHeight ? "fixed" : "relative"
         footer.style.width = "100%"
         footer.style.bottom = "0"
       }

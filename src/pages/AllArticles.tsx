@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "@/lib/irys";
+import { handleBookmark } from "@/lib/queriesGraphQL/querybookmarks";
+import { useAccount } from "wagmi";
 
 interface Article {
   id: string;
@@ -28,6 +30,7 @@ interface Article {
 const AllArticles = () => {
   const [posts, setPosts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const { address } = useAccount();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -133,6 +136,10 @@ const AllArticles = () => {
                       variant="ghost"
                       size="sm"
                       className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
+                      onClick={() => {
+                        console.log("addresss22", address);
+                        handleBookmark(address, article.id);
+                      }}
                     >
                       <Bookmark className="w-4 h-4" />
                     </Button>

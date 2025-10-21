@@ -24,12 +24,14 @@ export async function getPost() {
     query {
       transactions(
         tags: [
-          { name: "application-id", values: ["${import.meta.env.VITE_APPLICATION_ID}"] }
+          { name: "application-id", values: ["${
+            import.meta.env.VITE_APPLICATION_ID
+          }"] }
           { name: "type", values: ["${import.meta.env.VITE_TYPE}"] }
         ],
         timestamp: { from: ${fromTimestamp}, to: ${toTimestamp} },
         order: DESC,
-        limit: 11
+        limit: 10
       ) {
         edges {
           node {
@@ -68,3 +70,44 @@ export async function getPost() {
 
   return uniquePosts;
 }
+
+export const getPostById = async (postId: string) => {
+  const query = `
+    query {
+      transactions(ids: "${postId}") {
+          edges{
+              node{
+                  id
+                  timestamp
+                  tags {
+                      name
+                      value
+                  }
+              }
+          }
+      }
+    }
+  `;
+
+  const response = await fetch(GRAPHQL_ENDPOINT, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({query})
+  })
+
+  const {data} = await response.json()
+  console.log("Raw data", data)
+
+  const id = data.transactions.edges[0].node.id;
+  const contentData = await fetch(`${GATEWAY_URL}/${id}`)
+  const content = await contentData.text()
+  const tags = data.transactions.edges[0].node.tags
+  const timestamp = data.transactions.edges[0].node.timestamp
+
+  return {
+    id,
+    content,
+    tags,
+    timestamp
+  }
+};

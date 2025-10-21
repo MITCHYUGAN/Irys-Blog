@@ -19,6 +19,8 @@ import {
 } from "@/lib/queriesGraphQL/userarticlegraphql";
 import { useAccount } from "wagmi";
 import { getProfile } from "@/lib/irys";
+import { handleBookmark } from "@/lib/queriesGraphQL/querybookmarks";
+import Footer from "@/components/Footer";
 
 interface Article {
   id: string;
@@ -212,6 +214,7 @@ export function Profile() {
                             variant="ghost"
                             size="sm"
                             className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
+                            onClick={() => handleBookmark(address, article.id)}
                           >
                             <Bookmark className="w-4 h-4" />
                           </Button>
@@ -257,6 +260,7 @@ export function Profile() {
           </div>
         </section>
       )}
+      <Footer />
     </>
   );
 }
