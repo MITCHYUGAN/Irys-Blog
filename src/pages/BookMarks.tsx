@@ -110,6 +110,7 @@ const BookMarks = () => {
         setBookmarks(
           bookmarkPost.filter((post): post is Article => post !== null)
         );
+
         console.log("Bookmarks Rendered", bookmarkPost);
       } catch (error) {
         console.error("Error while fetching bookmarks:", error);
@@ -131,7 +132,9 @@ const BookMarks = () => {
     try {
       await removeBookmark(postId, address);
       console.log("Bookmark Removed Locally", { postId });
-      alert("Bookmark removed successfully!");
+      setTimeout(() => {
+        alert("Bookmark removed successfully!");
+      }, 6000);
     } catch (error) {
       console.error("Failed to remove bookmark:", error);
       alert("Failed to remove bookmark. Please try again.");
@@ -203,7 +206,7 @@ const BookMarks = () => {
               </p>
             </div>
           </div>
-        ) : !bookmarks ? (
+        ) : !bookmarks || bookmarks.length === 0 ? (
           <div className="text-center py-20">
             <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2 font-display">

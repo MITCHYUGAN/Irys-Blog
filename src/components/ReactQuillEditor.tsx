@@ -25,6 +25,11 @@ const ReactQuillEditor = () => {
       return;
     }
 
+    if(!address){
+      alert("Please connect your wallet first.");
+      return;
+    }
+
     setUploading(true);
     setButtonText("Publishing...");
     console.log("Value", value);

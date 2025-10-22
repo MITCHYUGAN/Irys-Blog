@@ -65,7 +65,7 @@ export const toggleBookmark = debounce(
       useBookmarkStore.getState().removeBookmark(postId); // Update store optimistically
       setTimeout(() => {
         alert("Bookmark removed successfully!");
-      }, 3000);
+      }, 6000);
     } else {
       // Bookmark doesn't exist, add it
       const dataToUpload = postId;
