@@ -14,7 +14,8 @@ import { Button } from "@/components/ui/button";
 import DOMPurify from "dompurify";
 import Navbar from "./Navbar";
 import { getProfile } from "@/lib/irys";
-import getArticles from "@/lib/queryallarticles";
+// import getArticles from "@/lib/queryallarticles";
+import { getPostById } from "@/lib/queriesGraphQL/graphql";
 
 // Define the raw post type returned by getArticles()
 interface RawPost {
@@ -42,29 +43,50 @@ export function PostDetail() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchPost = async () => {
+    // Modified: Retry mechanism for fetching post
+  const fetchPostWithRetry = async (postId: string, retries = 3, delay = 2000): Promise<Article | null> => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const fetchedPosts = await getArticles() as RawPost[];
-        const foundPost = fetchedPosts.find((p: RawPost) => p.id === id);
-        if (foundPost) {
-          const author =
-            foundPost.tags.find((t: any) => t.name === "author")?.value ||
-            "Anonymous";
-          const profile = await getProfile(author);
-          setPost({
-            id: foundPost.id,
-            content: foundPost.content,
-            author,
-            createdAt: foundPost.timestamp,
-            likes: 0,
-            comments: 0,
-            readTime: `${Math.ceil(
-              foundPost.content.split(" ").length / 200
-            )} min read`,
-            username: profile?.username,
-          });
+        const foundPost = await getPostById(postId);
+        if (!foundPost) {
+          console.warn(`Attempt ${attempt}: No post found for postId: ${postId}`);
+          if (attempt === retries) return null;
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
         }
+        const author =
+          foundPost.tags.find((t: any) => t.name === "author")?.value || "Anonymous";
+        const profile = await getProfile(author);
+        return {
+          id: foundPost.id,
+          content: foundPost.content,
+          author,
+          createdAt: foundPost.timestamp,
+          likes: 0,
+          comments: 0,
+          readTime: `${Math.ceil(foundPost.content.split(" ").length / 200)} min read`,
+          username: profile?.username,
+        };
+      } catch (error) {
+        console.error(`Attempt ${attempt}: Error fetching post ${postId}:`, error);
+        if (attempt === retries) return null;
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+    return null;
+  };
+
+    useEffect(() => {
+    const fetchPost = async () => {
+      if (!id) {
+        console.warn("No post ID provided");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const fetchedPost = await fetchPostWithRetry(id);
+        setPost(fetchedPost);
       } catch (error) {
         console.error("Error fetching post:", error);
       } finally {
@@ -72,7 +94,7 @@ export function PostDetail() {
       }
     };
 
-    if (id) fetchPost();
+    fetchPost();
   }, [id]);
 
   return (

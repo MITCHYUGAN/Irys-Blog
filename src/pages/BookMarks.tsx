@@ -36,6 +36,7 @@ const BookMarks = () => {
   const [bookmarks, setBookmarks] = useState<Article[]>([]);
   const { address } = useAccount();
   const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false); // New: Track if bookmarks have been fetched
   const navigate = useNavigate();
   const bookmarkIds = useBookmarkStore((state) => state.bookmarks); // New: Get bookmark IDs from store
   const [profileUsername, setProfileUsername] = useState<string | null>(null); // New: State for dynamic username
@@ -68,9 +69,15 @@ const BookMarks = () => {
         return;
       }
 
+      // Skip fetching if already fetched and no bookmarks exist
+      if (hasFetched && bookmarkIds.length === 0) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        // Fetch bookmarks from Irys if store is empty
-        if (bookmarkIds.length === 0) {
+        // Fetch bookmarks from Irys only if store is empty and hasn't been fetched
+        if (bookmarkIds.length === 0 && !hasFetched) {
           await getBookmarks(address);
         }
 
@@ -110,8 +117,8 @@ const BookMarks = () => {
         setBookmarks(
           bookmarkPost.filter((post): post is Article => post !== null)
         );
-
         console.log("Bookmarks Rendered", bookmarkPost);
+        setHasFetched(true); // Mark as fetched
       } catch (error) {
         console.error("Error while fetching bookmarks:", error);
       } finally {
@@ -120,7 +127,7 @@ const BookMarks = () => {
     };
 
     fetchBookmarks();
-  }, [address, bookmarkIds]); // Modified: Depend on bookmarkIds for real-time updates
+  }, [address, bookmarkIds, hasFetched]); // Modified: Depend on bookmarkIds for real-time updates
 
   // Modified: Handle remove bookmark and rely on store for updates
   const handleRemoveBookmark = async (postId: string) => {
@@ -141,7 +148,7 @@ const BookMarks = () => {
     }
   };
 
-    // New: Render wallet connection prompt if no address
+  // New: Render wallet connection prompt if no address
   if (!address) {
     return (
       <>

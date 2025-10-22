@@ -11,7 +11,6 @@ export const handleBookmark = async (address: string, postId: any) => {
 
   // Check if post is already bookmarked using mutable endpoint
   const { isBookmarked, rootTxId } = await checkBookmarkStatus(postId, address);
-  // console.log("Bookmark Status", { isBookmarked, rootTxId });
 
   if (isBookmarked) {
     alert("Article already bookmarked");
@@ -47,7 +46,6 @@ export const handleBookmark = async (address: string, postId: any) => {
 
 export const toggleBookmark = debounce(
   async (address: string, postId: string) => {
-
     if (!address) {
       console.warn("No wallet address provided for bookmark toggle");
       alert("Please connect your wallet to bookmark articles.");
@@ -101,7 +99,6 @@ export const toggleBookmark = debounce(
 
 // New: Helper to check bookmark status using mutable endpoint and Root-TX
 const checkBookmarkStatus = async (postId: string, address: string) => {
-
   const query = `
     query checkBookmark {
       transactions(
@@ -164,7 +161,6 @@ const checkBookmarkStatus = async (postId: string, address: string) => {
 };
 
 export const getBookmarks = async (address: string) => {
-
   if (!address) {
     console.warn("No address provided for getBookmarks");
     return [];
@@ -197,7 +193,7 @@ export const getBookmarks = async (address: string) => {
     }
 `;
 
-try {
+  try {
     const response = await fetch("https://devnet.irys.xyz/graphql", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -209,20 +205,26 @@ try {
 
     if (!data?.transactions?.edges || data.transactions.edges.length === 0) {
       console.log("No bookmark transactions found");
-      useBookmarkStore.getState().setBookmarks([]);
+      if (useBookmarkStore.getState().bookmarks.length !== 0) {
+        useBookmarkStore.getState().setBookmarks([]); // Clear store only if not already empty
+      }
       return [];
     }
 
     const bookmarks = new Set<string>();
     for (const edge of data.transactions.edges) {
       const txId = edge.node.id;
-      const postIdTag = edge.node.tags.find((tag: any) => tag.name === "post-id")?.value;
+      const postIdTag = edge.node.tags.find(
+        (tag: any) => tag.name === "post-id"
+      )?.value;
       if (!postIdTag) {
         console.warn("No post-id tag found for txId", txId);
         continue;
       }
       try {
-        const bookMarkResponse = await fetch(`https://gateway.irys.xyz/mutable/${txId}`);
+        const bookMarkResponse = await fetch(
+          `https://gateway.irys.xyz/mutable/${txId}`
+        );
         const latestData = await bookMarkResponse.text();
         console.log("Mutable Data for txId", { txId, latestData });
         if (latestData && latestData !== "") {
@@ -234,8 +236,14 @@ try {
     }
 
     const validBookmarks = Array.from(bookmarks);
-    console.log("Valid Bookmarks", validBookmarks);
-    useBookmarkStore.getState().setBookmarks(validBookmarks); // Update store
+    const currentBookmarks = useBookmarkStore.getState().bookmarks;
+    // Only update store if bookmarks have changed
+    if (
+      validBookmarks.length !== currentBookmarks.length ||
+      validBookmarks.some((id, index) => id !== currentBookmarks[index])
+    ) {
+      useBookmarkStore.getState().setBookmarks(validBookmarks);
+    }
     return validBookmarks;
   } catch (error) {
     console.error("Error fetching bookmarks:", error);
@@ -277,7 +285,7 @@ export const isBookmarked = async (postId: string, address: string) => {
   //   const JsonResponse = await response.json();
   //   const data = await JsonResponse.data;
   //   return data?.transactions?.edges?.length > 0;
-   if (!address || !postId) {
+  if (!address || !postId) {
     console.warn("Invalid parameters for isBookmarked", { postId, address });
     return false;
   }
@@ -287,32 +295,39 @@ export const isBookmarked = async (postId: string, address: string) => {
 };
 
 // Modified: Updated removeBookmark to use debouncing and update store
-export const removeBookmark = debounce(async (postId: string, address: string) => {
+export const removeBookmark = debounce(
+  async (postId: string, address: string) => {
+    const { rootTxId } = await checkBookmarkStatus(postId, address);
+    if (!rootTxId) {
+      console.error("No bookmark found to remove for postId:", postId);
+      throw new Error("No bookmark found to remove");
+    }
 
-  const { rootTxId } = await checkBookmarkStatus(postId, address);
-  if (!rootTxId) {
-    console.error("No bookmark found to remove for postId:", postId);
-    throw new Error("No bookmark found to remove");
-  }
+    const dataToUpload = "";
+    const tags = [
+      {
+        name: "application-id",
+        value: `${import.meta.env.VITE_APPLICATION_ID}`,
+      },
+      { name: "type", value: `${import.meta.env.VITE_BOOKMARK_TYPE}` },
+      { name: "author", value: address.toLowerCase() },
+      { name: "post-id", value: postId },
+      { name: "Content-Type", value: "text/plain" },
+      { name: "Root-TX", value: rootTxId },
+    ];
 
-  const dataToUpload = "";
-  const tags = [
-    { name: "application-id", value: `${import.meta.env.VITE_APPLICATION_ID}` },
-    { name: "type", value: `${import.meta.env.VITE_BOOKMARK_TYPE}` },
-    { name: "author", value: address.toLowerCase() },
-    { name: "post-id", value: postId },
-    { name: "Content-Type", value: "text/plain" },
-    { name: "Root-TX", value: rootTxId },
-  ];
-
-  try {
-    const irys = await getIrysUploader();
-    const receipt = await irys.upload(dataToUpload, { tags });
-    console.log(`Remove Bookmark Uploaded: https://gateway.irys.xyz/mutable/${rootTxId}`);
-    useBookmarkStore.getState().removeBookmark(postId); // Update store optimistically
-    return receipt.id;
-  } catch (error) {
-    console.error("Error uploading remove bookmark", error);
-    throw error;
-  }
-}, 1000);
+    try {
+      const irys = await getIrysUploader();
+      const receipt = await irys.upload(dataToUpload, { tags });
+      console.log(
+        `Remove Bookmark Uploaded: https://gateway.irys.xyz/mutable/${rootTxId}`
+      );
+      useBookmarkStore.getState().removeBookmark(postId); // Update store optimistically
+      return receipt.id;
+    } catch (error) {
+      console.error("Error uploading remove bookmark", error);
+      throw error;
+    }
+  },
+  1000
+);

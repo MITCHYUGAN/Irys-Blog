@@ -77,11 +77,25 @@ export function ArticlesSection() {
   const [posts, setPosts] = useState<Article[]>([]);
   const [allPosts, setAllPosts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const {address} = useAccount()
+  const { address } = useAccount();
   const navigate = useNavigate();
+  const [refreshKey, setRefreshKey] = useState(0);
 
-    // New: State to track bookmark status for each post
-  const [bookmarkStatus, setBookmarkStatus] = useState<{ [key: string]: boolean }>({});
+  // New: State to track bookmark status for each post
+  const [bookmarkStatus, setBookmarkStatus] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+    // New: Listen for post publication events
+  useEffect(() => {
+    const handlePostPublished = () => {
+      setRefreshKey((prev) => prev + 1); // Trigger post refresh
+    };
+
+    window.addEventListener("postPublished", handlePostPublished);
+    return () => window.removeEventListener("postPublished", handlePostPublished);
+  }, []);
+
 
   useEffect(() => {
     const fetchAllPosts = async () => {
@@ -131,7 +145,6 @@ export function ArticlesSection() {
           console.log("Initial Bookmark Status", statusMap);
           setBookmarkStatus(statusMap);
         }
-
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
@@ -141,10 +154,9 @@ export function ArticlesSection() {
 
     fetchAllPosts();
     fetchPosts();
-  }, [address]);
+  }, [address, refreshKey]);
 
-
-    // Modified: Handle bookmark toggle and update local status
+  // Modified: Handle bookmark toggle and update local status
   const handleBookmarkClick = async (postId: string) => {
     if (!address) {
       alert("Please connect your wallet to bookmark articles.");
@@ -244,7 +256,9 @@ export function ArticlesSection() {
                           onClick={() => handleBookmarkClick(article.id)} // Modified: Use handleBookmarkClick
                         >
                           <Bookmark
-                            className={`w-4 h-4 ${bookmarkStatus[article.id] ? "fill-main" : ""}`} // Modified: Reflect bookmark status
+                            className={`w-4 h-4 ${
+                              bookmarkStatus[article.id] ? "fill-main" : ""
+                            }`} // Modified: Reflect bookmark status
                           />
                         </Button>
                       </div>
