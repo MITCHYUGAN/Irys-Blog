@@ -24,7 +24,8 @@ import { getPost } from "@/lib/queriesGraphQL/graphql";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  handleBookmark,
+  isBookmarked,
+  toggleBookmark,
 } from "@/lib/queriesGraphQL/querybookmarks";
 import { useAccount } from "wagmi";
 
@@ -79,6 +80,9 @@ export function ArticlesSection() {
   const {address} = useAccount()
   const navigate = useNavigate();
 
+    // New: State to track bookmark status for each post
+  const [bookmarkStatus, setBookmarkStatus] = useState<{ [key: string]: boolean }>({});
+
   useEffect(() => {
     const fetchAllPosts = async () => {
       try {
@@ -115,6 +119,19 @@ export function ArticlesSection() {
           })
         );
         setPosts(formattedPosts);
+
+        // Fetch bookmark status for each post
+        if (address) {
+          const status = await Promise.all(
+            formattedPosts.map(async (post) => ({
+              [post.id]: await isBookmarked(post.id, address),
+            }))
+          );
+          const statusMap = Object.assign({}, ...status);
+          console.log("Initial Bookmark Status", statusMap);
+          setBookmarkStatus(statusMap);
+        }
+
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
@@ -124,7 +141,24 @@ export function ArticlesSection() {
 
     fetchAllPosts();
     fetchPosts();
-  }, []);
+  }, [address]);
+
+
+    // Modified: Handle bookmark toggle and update local status
+  const handleBookmarkClick = async (postId: string) => {
+    if (!address) {
+      alert("Please connect your wallet to bookmark articles.");
+      return;
+    }
+    try {
+      await toggleBookmark(address, postId);
+      const newStatus = await isBookmarked(postId, address);
+      setBookmarkStatus((prev) => ({ ...prev, [postId]: newStatus }));
+      console.log("Bookmark status updated locally", { postId, newStatus });
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+    }
+  };
 
   return (
     <section className="px-6 flex flex-col items-center py-12 text-white font-oswald">
@@ -207,12 +241,11 @@ export function ArticlesSection() {
                           variant="ghost"
                           size="sm"
                           className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
-                          onClick={() => {
-                            console.log("addresss", address)
-                            handleBookmark(address, article.id)
-                          }}
+                          onClick={() => handleBookmarkClick(article.id)} // Modified: Use handleBookmarkClick
                         >
-                          <Bookmark className="w-4 h-4" />
+                          <Bookmark
+                            className={`w-4 h-4 ${bookmarkStatus[article.id] ? "fill-main" : ""}`} // Modified: Reflect bookmark status
+                          />
                         </Button>
                       </div>
                     </div>

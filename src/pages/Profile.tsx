@@ -19,7 +19,7 @@ import {
 } from "@/lib/queriesGraphQL/userarticlegraphql";
 import { useAccount } from "wagmi";
 import { getProfile } from "@/lib/irys";
-import { handleBookmark } from "@/lib/queriesGraphQL/querybookmarks";
+import { isBookmarked, toggleBookmark } from "@/lib/queriesGraphQL/querybookmarks";
 import Footer from "@/components/Footer";
 
 interface Article {
@@ -45,26 +45,18 @@ export function Profile() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [bookmarkStatus, setBookmarkStatus] = useState<{ [key: string]: boolean }>({}); // New: State for bookmark status
 
+  // Modified: Fetch profile, posts, and bookmark status
   useEffect(() => {
     const fetchProfileAndPosts = async () => {
       try {
         const cleanedUsername = username?.replace(/^@/, "") || "";
-
-        // let isOwnProfile = false;
         if (address) {
           const currentProfile = await getProfile(address);
-
           if (currentProfile && currentProfile.username !== cleanedUsername) {
-            // isOwnProfile = true;
-            // navigate(`/profile/@${currentProfile.username}`);
-            // return;
+            // Optional: Redirect to own profile if needed
           }
-
-          // if (!currentProfile && cleanedUsername) {
-          //   navigate("/");
-          //   return;
-          // }
         }
 
         const profileData = await getProfileByUsername(cleanedUsername);
@@ -74,25 +66,35 @@ export function Profile() {
         }
         setProfile(profileData);
 
-        // Fetch posts by author (wallet address from profile)
         const fetchedPosts = await getUserPost(profileData.author);
-        const formattedPosts: Article[] = fetchedPosts.map((post: any) => {
-          const plainText = post.content;
-          return {
-            id: post.id,
-            content: post.content,
-            author:
-              post.tags.find((t: any) => t.name === "author")?.value ||
-              "Anonymous",
-            createdAt: post.timestamp,
-            likes: 0,
-            comments: 0,
-            readTime: `${Math.ceil(
-              plainText.split(" ").length / 200
-            )} min read`,
-          };
-        });
+        const formattedPosts: Article[] = await Promise.all(
+          fetchedPosts.map(async (post: any) => {
+            const plainText = post.content;
+            return {
+              id: post.id,
+              content: post.content,
+              author:
+                post.tags.find((t: any) => t.name === "author")?.value || "Anonymous",
+              createdAt: post.timestamp,
+              likes: 0,
+              comments: 0,
+              readTime: `${Math.ceil(plainText.split(" ").length / 200)} min read`,
+            };
+          })
+        );
         setPosts(formattedPosts);
+
+        // Fetch bookmark status for each post
+        if (address) {
+          const status = await Promise.all(
+            formattedPosts.map(async (post) => ({
+              [post.id]: await isBookmarked(post.id, address),
+            }))
+          );
+          const statusMap = Object.assign({}, ...status);
+          console.log("Initial Bookmark Status", statusMap);
+          setBookmarkStatus(statusMap);
+        }
       } catch (error) {
         console.error("Error fetching profile/posts:", error);
       } finally {
@@ -101,9 +103,24 @@ export function Profile() {
     };
 
     console.log("username", username);
-
     if (username) fetchProfileAndPosts();
   }, [username, address, navigate]);
+
+  // New: Handle bookmark toggle and update local status
+  const handleBookmarkClick = async (postId: string) => {
+    if (!address) {
+      alert("Please connect your wallet to bookmark articles.");
+      return;
+    }
+    try {
+      await toggleBookmark(address, postId);
+      const newStatus = await isBookmarked(postId, address);
+      setBookmarkStatus((prev) => ({ ...prev, [postId]: newStatus }));
+      console.log("Bookmark status updated locally", { postId, newStatus });
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+    }
+  };
 
   return (
     <>
@@ -210,13 +227,15 @@ export function Profile() {
                           <span className="px-3 py-1 rounded-full text-xs font-medium bg-main/10 text-main border border-main/20 font-display-inter">
                             Blog
                           </span>
-                          <Button
+                         <Button
                             variant="ghost"
                             size="sm"
                             className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
-                            onClick={() => handleBookmark(address, article.id)}
+                            onClick={() => handleBookmarkClick(article.id)} // Modified: Use handleBookmarkClick
                           >
-                            <Bookmark className="w-4 h-4" />
+                            <Bookmark
+                              className={`w-4 h-4 ${bookmarkStatus[article.id] ? "fill-main" : ""}`} // Modified: Reflect bookmark status
+                            />
                           </Button>
                         </div>
                       </div>

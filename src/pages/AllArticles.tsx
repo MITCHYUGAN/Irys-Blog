@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "@/lib/irys";
-import { handleBookmark } from "@/lib/queriesGraphQL/querybookmarks";
+import { isBookmarked, toggleBookmark } from "@/lib/queriesGraphQL/querybookmarks";
 import { useAccount } from "wagmi";
 
 interface Article {
@@ -32,7 +32,9 @@ const AllArticles = () => {
   const [loading, setLoading] = useState(true);
   const { address } = useAccount();
   const navigate = useNavigate();
+  const [bookmarkStatus, setBookmarkStatus] = useState<{ [key: string]: boolean }>({}); // New: State for bookmark status
 
+  // Modified: Fetch posts and bookmark status
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -40,8 +42,7 @@ const AllArticles = () => {
         const formattedPosts: Article[] = await Promise.all(
           fetchedPosts.map(async (post: any) => {
             const author =
-              post.tags.find((t: any) => t.name === "author")?.value ||
-              "Anonymous";
+              post.tags.find((t: any) => t.name === "author")?.value || "Anonymous";
             const profile = await getProfile(author);
             const plainText = post.content;
             return {
@@ -51,14 +52,24 @@ const AllArticles = () => {
               createdAt: post.timestamp,
               likes: 0,
               comments: 0,
-              readTime: `${Math.ceil(
-                plainText.split(" ").length / 200
-              )} min read`,
+              readTime: `${Math.ceil(plainText.split(" ").length / 200)} min read`,
               username: profile?.username,
             };
           })
         );
         setPosts(formattedPosts);
+
+        // Fetch bookmark status for each post
+        if (address) {
+          const status = await Promise.all(
+            formattedPosts.map(async (post) => ({
+              [post.id]: await isBookmarked(post.id, address),
+            }))
+          );
+          const statusMap = Object.assign({}, ...status);
+          console.log("Initial Bookmark Status", statusMap);
+          setBookmarkStatus(statusMap);
+        }
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
@@ -67,7 +78,24 @@ const AllArticles = () => {
     };
 
     fetchPosts();
-  }, []);
+  }, [address]);
+
+  // New: Handle bookmark toggle and update local status
+  const handleBookmarkClick = async (postId: string) => {
+    if (!address) {
+      alert("Please connect your wallet to bookmark articles.");
+      return;
+    }
+    try {
+      await toggleBookmark(address, postId);
+      const newStatus = await isBookmarked(postId, address);
+      setBookmarkStatus((prev) => ({ ...prev, [postId]: newStatus }));
+      console.log("Bookmark status updated locally", { postId, newStatus });
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+    }
+  };
+
   return (
     <section className="mt-25 flex flex-col items-center">
       <Navbar />
@@ -132,16 +160,15 @@ const AllArticles = () => {
                     <span className="px-3 py-1 rounded-full text-xs font-medium bg-main/10 text-main border border-main/20">
                       Blog
                     </span>
-                    <Button
+                   <Button
                       variant="ghost"
                       size="sm"
                       className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
-                      onClick={() => {
-                        console.log("addresss22", address);
-                        handleBookmark(address, article.id);
-                      }}
+                      onClick={() => handleBookmarkClick(article.id)} // Modified: Use handleBookmarkClick
                     >
-                      <Bookmark className="w-4 h-4" />
+                      <Bookmark
+                        className={`w-4 h-4 ${bookmarkStatus[article.id] ? "fill-main" : ""}`} // Modified: Reflect bookmark status
+                      />
                     </Button>
                   </div>
                 </div>

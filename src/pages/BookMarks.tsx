@@ -13,8 +13,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 import DOMPurify from "dompurify";
-import { getBookmarks } from "@/lib/queriesGraphQL/querybookmarks";
+import {
+  getBookmarks,
+  removeBookmark,
+} from "@/lib/queriesGraphQL/querybookmarks";
 import Footer from "@/components/Footer";
+import { getProfile } from "@/lib/irys";
+import { useBookmarkStore } from "@/lib/store";
 
 interface Article {
   id: string;
@@ -28,13 +33,33 @@ interface Article {
 }
 
 const BookMarks = () => {
-  const username = "test3";
-
   const [bookmarks, setBookmarks] = useState<Article[]>([]);
   const { address } = useAccount();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const bookmarkIds = useBookmarkStore((state) => state.bookmarks); // New: Get bookmark IDs from store
+  const [profileUsername, setProfileUsername] = useState<string | null>(null); // New: State for dynamic username
 
+  // Modified: Fetch profile username for header
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (address) {
+        try {
+          const profile = await getProfile(address);
+          setProfileUsername(
+            profile?.username || address.slice(0, 6) + "..." + address.slice(-4)
+          );
+          console.log("Fetched Profile Username", profile?.username);
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+          setProfileUsername(address.slice(0, 6) + "..." + address.slice(-4));
+        }
+      }
+    };
+    fetchProfile();
+  }, [address]);
+
+  // Modified: Fetch bookmarks from store or Irys and update state
   useEffect(() => {
     const fetchBookmarks = async () => {
       if (!address) {
@@ -44,38 +69,101 @@ const BookMarks = () => {
       }
 
       try {
-        const fetchedBookmarksId = await getBookmarks(address);
-        console.log("fetched Bookmarks", fetchedBookmarksId);
+        // Fetch bookmarks from Irys if store is empty
+        if (bookmarkIds.length === 0) {
+          await getBookmarks(address);
+        }
 
+        // Convert bookmark IDs to articles
         const bookmarkPost: Article[] = await Promise.all(
-          fetchedBookmarksId.map(async (postId: string) => {
-            const post = await getPostById(postId);
-            const plainText = post.content;
-            return {
-              id: post.id,
-              content: post.content,
-              createdAt: post.timestamp,
-              likes: 0,
-              comments: 0,
-              readTime: `${Math.ceil(
-                plainText.split(" ").length / 200
-              )} min read`,
-              username: "string",
-              author: "string",
-            };
+          bookmarkIds.map(async (postId: string) => {
+            try {
+              const post = await getPostById(postId);
+              if (!post) {
+                console.warn(`Skipping invalid postId: ${postId}`);
+                return null;
+              }
+              const authorTag =
+                post.tags.find((t: any) => t.name === "author")?.value ||
+                "Anonymous";
+              const profile = await getProfile(authorTag);
+              const plainText = post.content;
+              return {
+                id: post.id,
+                content: post.content,
+                author: authorTag.slice(0, 6) + "..." + authorTag.slice(-4),
+                createdAt: post.timestamp,
+                likes: 0,
+                comments: 0,
+                readTime: `${Math.ceil(
+                  plainText.split(" ").length / 200
+                )} min read`,
+                username: profile?.username || authorTag,
+              };
+            } catch (error) {
+              console.error(`Failed to fetch post ${postId}:`, error);
+              return null;
+            }
           })
         );
 
-        setBookmarks(bookmarkPost);
+        setBookmarks(
+          bookmarkPost.filter((post): post is Article => post !== null)
+        );
+        console.log("Bookmarks Rendered", bookmarkPost);
       } catch (error) {
-        console.log("Error while fetching bookmarks", error);
+        console.error("Error while fetching bookmarks:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchBookmarks();
-  }, [address]);
+  }, [address, bookmarkIds]); // Modified: Depend on bookmarkIds for real-time updates
+
+  // Modified: Handle remove bookmark and rely on store for updates
+  const handleRemoveBookmark = async (postId: string) => {
+    if (!address) {
+      alert("Please connect your wallet to remove bookmarks.");
+      return;
+    }
+
+    try {
+      await removeBookmark(postId, address);
+      console.log("Bookmark Removed Locally", { postId });
+      alert("Bookmark removed successfully!");
+    } catch (error) {
+      console.error("Failed to remove bookmark:", error);
+      alert("Failed to remove bookmark. Please try again.");
+    }
+  };
+
+    // New: Render wallet connection prompt if no address
+  if (!address) {
+    return (
+      <>
+        <Navbar />
+        <section className="min-h-screen flex flex-col items-center justify-center text-white font-oswald">
+          <div className="text-center">
+            <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h2 className="text-3xl font-bold mb-4 font-display">
+              Connect Your Wallet
+            </h2>
+            <p className="text-gray-400 mb-6 font-display-inter max-w-md">
+              Please connect your wallet to view your bookmarked articles.
+            </p>
+            <Button
+              onClick={() => navigate("/")} // Redirect to home for wallet connection
+              className="bg-main hover:bg-main/90 text-black font-semibold px-6 py-3 rounded-lg shadow-lg shadow-main/20 hover:shadow-xl hover:shadow-main/30 transition-all duration-300 hover:scale-105"
+            >
+              Go to Home
+            </Button>
+          </div>
+        </section>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -86,14 +174,16 @@ const BookMarks = () => {
           <div className="absolute top-0 right-1/4 w-96 h-96 bg-main/10 rounded-full blur-3xl pointer-events-none" />
           <div className="relative max-w-6xl mx-auto px-6 py-16 flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full flex items-center justify-center text-black font-bold text-2xl shadow-xl bg-main">
-              {/* {profile.username.slice(0, 2).toUpperCase()} */}
-              {username.slice(0, 2).toUpperCase()}
+              {profileUsername
+                ? profileUsername.slice(0, 2).toUpperCase()
+                : "BM"}{" "}
+              {/* Modified: Use dynamic username */}
             </div>
             <h1 className="text-4xl mt-3 md:text-5xl font-bold font-display">
-              {/* @{profile.username} */}@{username}
+              @{profileUsername || "Bookmarks"}{" "}
+              {/* Modified: Use dynamic username */}
             </h1>
             <p className="text-gray-400 text-lg mt-5 font-display-inter mb-6">
-              {/* {posts.length} {posts.length === 1 ? "article" : "articles"}{" "} */}
               You have {bookmarks.length} Articles Bookmarked
             </p>
             <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-gray-700/30 border border-gray-600/50">
@@ -113,7 +203,7 @@ const BookMarks = () => {
               </p>
             </div>
           </div>
-        ) : bookmarks.length === 0 ? (
+        ) : !bookmarks ? (
           <div className="text-center py-20">
             <FileText className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-2 font-display">
@@ -174,12 +264,11 @@ const BookMarks = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
-                        onClick={
-                          () => {} /* Add remove bookmark logic if needed */
-                        }
+                        className="text-main hover:text-main/80 hover:bg-main/10 p-2 transition-colors"
+                        onClick={() => handleRemoveBookmark(article.id)}
                       >
-                        <Bookmark className="w-4 h-4" />
+                        <Bookmark className="w-4 h-4 fill-main" />{" "}
+                        {/* Kept: Filled to indicate bookmarked */}
                       </Button>
                     </div>
                   </div>

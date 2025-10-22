@@ -71,7 +71,13 @@ export async function getPost() {
   return uniquePosts;
 }
 
+// Modified: Added check for empty/invalid postId and empty edges to prevent crashes.
 export const getPostById = async (postId: string) => {
+  if (!postId || postId === "") {
+    console.warn("Invalid postId provided to getPostById:", postId);
+    return null; // Return null for empty/invalid postId
+  }
+
   const query = `
     query {
       transactions(ids: "${postId}") {
@@ -91,23 +97,31 @@ export const getPostById = async (postId: string) => {
 
   const response = await fetch(GRAPHQL_ENDPOINT, {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({query})
-  })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
 
-  const {data} = await response.json()
-  console.log("Raw data", data)
+  const { data } = await response.json();
+  console.log("Raw data from GetPostByID", data);
 
+  // if()
+
+  
+  if (!data?.transactions?.edges?.length) {
+    console.warn(`No post found for postId: ${postId}`);
+    return null; // Return null if no post found
+  }
+  
   const id = data.transactions.edges[0].node.id;
-  const contentData = await fetch(`${GATEWAY_URL}/${id}`)
-  const content = await contentData.text()
-  const tags = data.transactions.edges[0].node.tags
-  const timestamp = data.transactions.edges[0].node.timestamp
+  const contentData = await fetch(`${GATEWAY_URL}/${id}`);
+  const content = await contentData.text();
+  const tags = data.transactions.edges[0].node.tags;
+  const timestamp = data.transactions.edges[0].node.timestamp;
 
   return {
     id,
     content,
     tags,
-    timestamp
-  }
+    timestamp,
+  };
 };
