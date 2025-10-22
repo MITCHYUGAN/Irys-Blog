@@ -86,16 +86,16 @@ export function ArticlesSection() {
     [key: string]: boolean;
   }>({});
 
-    // New: Listen for post publication events
+  // New: Listen for post publication events
   useEffect(() => {
     const handlePostPublished = () => {
       setRefreshKey((prev) => prev + 1); // Trigger post refresh
     };
 
     window.addEventListener("postPublished", handlePostPublished);
-    return () => window.removeEventListener("postPublished", handlePostPublished);
+    return () =>
+      window.removeEventListener("postPublished", handlePostPublished);
   }, []);
-
 
   useEffect(() => {
     const fetchAllPosts = async () => {
@@ -144,6 +144,9 @@ export function ArticlesSection() {
           const statusMap = Object.assign({}, ...status);
           console.log("Initial Bookmark Status", statusMap);
           setBookmarkStatus(statusMap);
+        } else {
+          // Modified: Clear bookmark status when no wallet connected
+          setBookmarkStatus({});
         }
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -156,7 +159,6 @@ export function ArticlesSection() {
     fetchPosts();
   }, [address, refreshKey]);
 
-  // Modified: Handle bookmark toggle and update local status
   const handleBookmarkClick = async (postId: string) => {
     if (!address) {
       alert("Please connect your wallet to bookmark articles.");
@@ -253,7 +255,7 @@ export function ArticlesSection() {
                           variant="ghost"
                           size="sm"
                           className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
-                          onClick={() => handleBookmarkClick(article.id)} // Modified: Use handleBookmarkClick
+                          // onClick={() => handleBookmarkClick(article.id)} // Modified: Use handleBookmarkClick
                         >
                           <Bookmark
                             className={`w-4 h-4 ${

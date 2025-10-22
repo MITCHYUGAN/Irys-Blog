@@ -164,7 +164,7 @@ const AllArticles = () => {
                       variant="ghost"
                       size="sm"
                       className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
-                      onClick={() => handleBookmarkClick(article.id)} // Modified: Use handleBookmarkClick
+                      // onClick={() => handleBookmarkClick(article.id)} // Modified: Use handleBookmarkClick
                     >
                       <Bookmark
                         className={`w-4 h-4 ${bookmarkStatus[article.id] ? "fill-main" : ""}`} // Modified: Reflect bookmark status
