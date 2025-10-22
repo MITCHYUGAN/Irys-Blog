@@ -19,7 +19,10 @@ import {
 } from "@/lib/queriesGraphQL/userarticlegraphql";
 import { useAccount } from "wagmi";
 import { getProfile } from "@/lib/irys";
-import { isBookmarked, toggleBookmark } from "@/lib/queriesGraphQL/querybookmarks";
+import { 
+  isBookmarked, 
+  // toggleBookmark 
+} from "@/lib/queriesGraphQL/querybookmarks";
 import Footer from "@/components/Footer";
 
 interface Article {
@@ -107,20 +110,20 @@ export function Profile() {
   }, [username, address, navigate]);
 
   // New: Handle bookmark toggle and update local status
-  const handleBookmarkClick = async (postId: string) => {
-    if (!address) {
-      alert("Please connect your wallet to bookmark articles.");
-      return;
-    }
-    try {
-      await toggleBookmark(address, postId);
-      const newStatus = await isBookmarked(postId, address);
-      setBookmarkStatus((prev) => ({ ...prev, [postId]: newStatus }));
-      console.log("Bookmark status updated locally", { postId, newStatus });
-    } catch (error) {
-      console.error("Error toggling bookmark:", error);
-    }
-  };
+  // const handleBookmarkClick = async (postId: string) => {
+  //   if (!address) {
+  //     alert("Please connect your wallet to bookmark articles.");
+  //     return;
+  //   }
+  //   try {
+  //     await toggleBookmark(address, postId);
+  //     const newStatus = await isBookmarked(postId, address);
+  //     setBookmarkStatus((prev) => ({ ...prev, [postId]: newStatus }));
+  //     console.log("Bookmark status updated locally", { postId, newStatus });
+  //   } catch (error) {
+  //     console.error("Error toggling bookmark:", error);
+  //   }
+  // };
 
   return (
     <>

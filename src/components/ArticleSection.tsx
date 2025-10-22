@@ -25,7 +25,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   isBookmarked,
-  toggleBookmark,
+  // toggleBookmark,
 } from "@/lib/queriesGraphQL/querybookmarks";
 import { useAccount } from "wagmi";
 
@@ -159,20 +159,20 @@ export function ArticlesSection() {
     fetchPosts();
   }, [address, refreshKey]);
 
-  const handleBookmarkClick = async (postId: string) => {
-    if (!address) {
-      alert("Please connect your wallet to bookmark articles.");
-      return;
-    }
-    try {
-      await toggleBookmark(address, postId);
-      const newStatus = await isBookmarked(postId, address);
-      setBookmarkStatus((prev) => ({ ...prev, [postId]: newStatus }));
-      console.log("Bookmark status updated locally", { postId, newStatus });
-    } catch (error) {
-      console.error("Error toggling bookmark:", error);
-    }
-  };
+  // const handleBookmarkClick = async (postId: string) => {
+  //   if (!address) {
+  //     alert("Please connect your wallet to bookmark articles.");
+  //     return;
+  //   }
+  //   try {
+  //     await toggleBookmark(address, postId);
+  //     const newStatus = await isBookmarked(postId, address);
+  //     setBookmarkStatus((prev) => ({ ...prev, [postId]: newStatus }));
+  //     console.log("Bookmark status updated locally", { postId, newStatus });
+  //   } catch (error) {
+  //     console.error("Error toggling bookmark:", error);
+  //   }
+  // };
 
   return (
     <section className="px-6 flex flex-col items-center py-12 text-white font-oswald">

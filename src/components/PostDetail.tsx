@@ -18,13 +18,13 @@ import { getProfile } from "@/lib/irys";
 import { getPostById } from "@/lib/queriesGraphQL/graphql";
 
 // Define the raw post type returned by getArticles()
-interface RawPost {
-  id: string;
-  content: string;
-  tags: { name: string; value: string }[];
-  timestamp: number;
-  [key: string]: any; // Allow additional fields for flexibility
-}
+// interface RawPost {
+//   id: string;
+//   content: string;
+//   tags: { name: string; value: string }[];
+//   timestamp: number;
+//   [key: string]: any; // Allow additional fields for flexibility
+// }
 
 interface Article {
   id: string;

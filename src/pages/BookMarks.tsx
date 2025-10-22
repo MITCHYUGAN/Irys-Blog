@@ -36,7 +36,7 @@ const BookMarks = () => {
   const [bookmarks, setBookmarks] = useState<Article[]>([]);
   const { address } = useAccount();
   const [loading, setLoading] = useState(true);
-  const [hasFetched, setHasFetched] = useState(false); // New: Track if bookmarks have been fetched
+  // const [hasFetched, setHasFetched] = useState(false); // New: Track if bookmarks have been fetched
   const navigate = useNavigate();
   const bookmarkIds = useBookmarkStore((state) => state.bookmarks); // New: Get bookmark IDs from store
   const [profileUsername, setProfileUsername] = useState<string | null>(null); // New: State for dynamic username
