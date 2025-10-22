@@ -71,39 +71,82 @@ const BookMarks = () => {
         return;
       }
 
+      //// Commented out to solve deploy error.
+      // try {
+      //   // Always fetch articles for current bookmarkIds
+      //   const bookmarkPost: Article[] = await Promise.all(
+      //     bookmarkIds.map(async (postId: string) => {
+      //       try {
+      //         const post = await getPostById(postId);
+      //         if (!post) {
+      //           console.warn(`Skipping invalid postId: ${postId}`);
+      //           return null;
+      //         }
+      //         const authorTag =
+      //           post.tags.find((t: any) => t.name === "author")?.value ||
+      //           "Anonymous";
+      //         const profile = await getProfile(authorTag);
+      //         const plainText = post.content;
+      //         return {
+      //           id: post.id,
+      //           content: post.content,
+      //           author: authorTag.slice(0, 6) + "..." + authorTag.slice(-4),
+      //           createdAt: post.timestamp,
+      //           likes: 0,
+      //           comments: 0,
+      //           readTime: `${Math.ceil(plainText.split(" ").length / 200)} min read`,
+      //           username: profile?.username || authorTag,
+      //         };
+      //       } catch (error) {
+      //         console.error(`Failed to fetch post ${postId}:`, error);
+      //         return null;
+      //       }
+      //     })
+      //   );
+
+      //   setBookmarks(bookmarkPost.filter((post): post is Article => post !== null));
+      //   console.log("Bookmarks Rendered", bookmarkPost);
+      // } catch (error) {
+      //   console.error("Error while fetching bookmarks:", error);
+      //   setBookmarks([]);
+      // } finally {
+      //   setLoading(false);
+      // }
+
+
       try {
         // Always fetch articles for current bookmarkIds
-        const bookmarkPost: Article[] = await Promise.all(
-          bookmarkIds.map(async (postId: string) => {
-            try {
-              const post = await getPostById(postId);
-              if (!post) {
-                console.warn(`Skipping invalid postId: ${postId}`);
-                return null;
-              }
-              const authorTag =
-                post.tags.find((t: any) => t.name === "author")?.value ||
-                "Anonymous";
-              const profile = await getProfile(authorTag);
-              const plainText = post.content;
-              return {
-                id: post.id,
-                content: post.content,
-                author: authorTag.slice(0, 6) + "..." + authorTag.slice(-4),
-                createdAt: post.timestamp,
-                likes: 0,
-                comments: 0,
-                readTime: `${Math.ceil(plainText.split(" ").length / 200)} min read`,
-                username: profile?.username || authorTag,
-              };
-            } catch (error) {
-              console.error(`Failed to fetch post ${postId}:`, error);
+        const bookmarkPostPromises = bookmarkIds.map(async (postId: string) => {
+          try {
+            const post = await getPostById(postId);
+            if (!post) {
+              console.warn(`Skipping invalid postId: ${postId}`);
               return null;
             }
-          })
-        );
+            const authorTag =
+              post.tags.find((t: any) => t.name === "author")?.value ||
+              "Anonymous";
+            const profile = await getProfile(authorTag);
+            const plainText = post.content;
+            return {
+              id: post.id,
+              content: post.content,
+              author: authorTag.slice(0, 6) + "..." + authorTag.slice(-4),
+              createdAt: post.timestamp,
+              likes: 0,
+              comments: 0,
+              readTime: `${Math.ceil(plainText.split(" ").length / 200)} min read`,
+              username: profile?.username || authorTag,
+            } as Article;  // Explicitly assert as Article
+          } catch (error) {
+            console.error(`Failed to fetch post ${postId}:`, error);
+            return null;
+          }
+        });
 
-        setBookmarks(bookmarkPost.filter((post): post is Article => post !== null));
+        const bookmarkPost = (await Promise.all(bookmarkPostPromises)).filter((post): post is Article => post !== null);
+
+        setBookmarks(bookmarkPost);
         console.log("Bookmarks Rendered", bookmarkPost);
       } catch (error) {
         console.error("Error while fetching bookmarks:", error);
@@ -115,6 +158,56 @@ const BookMarks = () => {
 
     fetchBookmarks();
   }, [address, bookmarkIds]); // Modified: Removed hasFetched to ensure updates on bookmarkIds change
+
+  // Commented out to solve deployment issue
+  // const handleRemoveBookmark = async (postId: string) => {
+  //   if (!address) {
+  //     alert("Please connect your wallet to remove bookmarks.");
+  //     return;
+  //   }
+
+  //   // Optimistically update local state
+  //   setBookmarks((prev) => prev.filter((bookmark) => bookmark.id !== postId));
+  //   console.log("Optimistic Bookmark Removal", { postId });
+
+  //   try {
+  //     await removeBookmark(postId, address);
+  //     console.log("Bookmark Removed Successfully", { postId });
+  //   } catch (error) {
+  //     console.error("Failed to remove bookmark:", error);
+  //     // Revert optimistic update on failure
+  //     alert("Failed to remove bookmark. Please try again.");
+  //     // Optionally refetch bookmarks to restore state
+  //     const updatedIds = await getBookmarks(address);
+  //     const bookmarkPost: Article[] = await Promise.all(
+  //       updatedIds.map(async (id: string) => {
+  //         try {
+  //           const post = await getPostById(id);
+  //           if (!post) return null;
+  //           const authorTag =
+  //             post.tags.find((t: any) => t.name === "author")?.value ||
+  //             "Anonymous";
+  //           const profile = await getProfile(authorTag);
+  //           return {
+  //             id: post.id,
+  //             content: post.content,
+  //             author: authorTag.slice(0, 6) + "..." + authorTag.slice(-4),
+  //             createdAt: post.timestamp,
+  //             likes: 0,
+  //             comments: 0,
+  //             readTime: `${Math.ceil(post.content.split(" ").length / 200)} min read`,
+  //             username: profile?.username || authorTag,
+  //           };
+  //         } catch (error) {
+  //           console.error(`Failed to fetch post ${id}:`, error);
+  //           return null;
+  //         }
+  //       })
+  //     );
+  //     setBookmarks(bookmarkPost.filter((post): post is Article => post !== null));
+  //   }
+  // };
+
 
   // Modified: Handle remove bookmark with optimistic UI update
   const handleRemoveBookmark = async (postId: string) => {
@@ -136,32 +229,32 @@ const BookMarks = () => {
       alert("Failed to remove bookmark. Please try again.");
       // Optionally refetch bookmarks to restore state
       const updatedIds = await getBookmarks(address);
-      const bookmarkPost: Article[] = await Promise.all(
-        updatedIds.map(async (id: string) => {
-          try {
-            const post = await getPostById(id);
-            if (!post) return null;
-            const authorTag =
-              post.tags.find((t: any) => t.name === "author")?.value ||
-              "Anonymous";
-            const profile = await getProfile(authorTag);
-            return {
-              id: post.id,
-              content: post.content,
-              author: authorTag.slice(0, 6) + "..." + authorTag.slice(-4),
-              createdAt: post.timestamp,
-              likes: 0,
-              comments: 0,
-              readTime: `${Math.ceil(post.content.split(" ").length / 200)} min read`,
-              username: profile?.username || authorTag,
-            };
-          } catch (error) {
-            console.error(`Failed to fetch post ${id}:`, error);
-            return null;
-          }
-        })
-      );
-      setBookmarks(bookmarkPost.filter((post): post is Article => post !== null));
+      const bookmarkPostPromises = updatedIds.map(async (id: string) => {
+        try {
+          const post = await getPostById(id);
+          if (!post) return null;
+          const authorTag =
+            post.tags.find((t: any) => t.name === "author")?.value ||
+            "Anonymous";
+          const profile = await getProfile(authorTag);
+          return {
+            id: post.id,
+            content: post.content,
+            author: authorTag.slice(0, 6) + "..." + authorTag.slice(-4),
+            createdAt: post.timestamp,
+            likes: 0,
+            comments: 0,
+            readTime: `${Math.ceil(post.content.split(" ").length / 200)} min read`,
+            username: profile?.username || authorTag,
+          } as Article;
+        } catch (error) {
+          console.error(`Failed to fetch post ${id}:`, error);
+          return null;
+        }
+      });
+
+      const bookmarkPost = (await Promise.all(bookmarkPostPromises)).filter((post): post is Article => post !== null);
+      setBookmarks(bookmarkPost);
     }
   };
 
