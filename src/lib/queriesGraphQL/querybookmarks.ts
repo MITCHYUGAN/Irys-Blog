@@ -37,6 +37,7 @@ export const handleBookmark = async (address: string, postId: any) => {
       `Bookmark Uploaded: https://gateway.irys.xyz/mutable/${receipt.id}`,
       { tags }
     );
+    useBookmarkStore.getState().addBookmark(postId); // Modified: Update store after successful upload
     alert("Article bookmarked successfully!");
   } catch (error) {
     console.error("Error uploading bookmark:", error);
@@ -59,11 +60,15 @@ export const toggleBookmark = debounce(
 
     if (isBookmarked) {
       // Bookmark exists, remove it
-      await removeBookmark(postId, address);
-      useBookmarkStore.getState().removeBookmark(postId); // Update store optimistically
-      setTimeout(() => {
-        alert("Bookmark removed successfully!");
-      }, 6000);
+      useBookmarkStore.getState().removeBookmark(postId); // Modified: Optimistic store update
+      try {
+        await removeBookmark(postId, address);
+        alert("Bookmark removed successfully!"); // Modified: Alert after success
+      } catch (error) {
+        // Revert optimistic update on failure
+        useBookmarkStore.getState().addBookmark(postId);
+        throw error;
+      }
     } else {
       // Bookmark doesn't exist, add it
       const dataToUpload = postId;
@@ -86,7 +91,7 @@ export const toggleBookmark = debounce(
           `Bookmark Added: https://gateway.irys.xyz/mutable/${receipt.id}`,
           { tags }
         );
-        useBookmarkStore.getState().addBookmark(postId); // Update store optimistically
+        useBookmarkStore.getState().addBookmark(postId); // Modified: Update store after success
         alert("Article bookmarked successfully!");
       } catch (error) {
         console.error("Error adding bookmark:", error);
@@ -322,7 +327,8 @@ export const removeBookmark = debounce(
       console.log(
         `Remove Bookmark Uploaded: https://gateway.irys.xyz/mutable/${rootTxId}`
       );
-      useBookmarkStore.getState().removeBookmark(postId); // Update store optimistically
+      useBookmarkStore.getState().removeBookmark(postId); // Modified: Moved store update here for consistency
+      alert("Bookmark removed successfully!"); // Modified: Alert after successful removal
       return receipt.id;
     } catch (error) {
       console.error("Error uploading remove bookmark", error);
