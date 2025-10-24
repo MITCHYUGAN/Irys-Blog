@@ -59,7 +59,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
   const fetchUploadBalance = async () => {
     const irys = await getIrysUploader();
 
-    setLoading(true)
+    setLoading(true);
     try {
       console.log("Getting upload balance...");
       const balanceAtomic = await irys.getBalance();
@@ -69,7 +69,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
     } catch (error) {
       console.log("Error getting Upload Balance", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -92,13 +92,14 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
       return walletBalanceEth;
     } catch (error) {
       console.log("Error while fetching Wallet balance", error);
+      return "Not found";
     }
   };
 
-  const fundAccount = async (amount) => {
+  const fundAccount = async (amount: string) => {
     console.log("Funding...", amount);
 
-    if (!amount || amount <= 0) {
+    if (!amount || Number(amount) <= 0) {
       alert("Pls enter a valid amount");
       return;
     }
@@ -107,7 +108,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
       // Compare wallet balance with amount to fund
       const walletBalance = await fetchWalletInfo();
 
-      if (walletBalance < amount) {
+      if (Number(walletBalance) < Number(amount)) {
         alert("Not enough balance");
         return;
       }
@@ -126,11 +127,20 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
         alert("Funded Successful");
         // setLoading(false);
         setAmountToFUnd("");
-      } catch (error) {
+      } catch (error: unknown) {
         console.log("Error while funding", error);
 
-        if (error.message.includes("user rejected action")) {
+        // if (error.message.includes("user rejected action")) {
+        //   alert("User Rejected transaction");
+        // }
+
+        if (
+          error instanceof Error &&
+          error.message.includes("user rejected action")
+        ) {
           alert("User Rejected transaction");
+        } else {
+          console.error("Error while funding", error);
         }
       }
 
@@ -297,11 +307,13 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
             </h1>
 
             <div className="flex justify-between items-center">
-              <Button disabled={loading} onClick={fetchUploadBalance} variant="default">
+              <Button
+                disabled={loading}
+                onClick={fetchUploadBalance}
+                variant="default"
+              >
                 Refresh
-                <RotateCw
-                  className="cursor-pointer w-[15px]"
-                />
+                <RotateCw className="cursor-pointer w-[15px]" />
               </Button>
               <Dialog>
                 <DialogTrigger asChild>
