@@ -1,4 +1,4 @@
-// src/components/ProfileModal.tsx (new file - popup for profile creation)
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,7 +54,9 @@ export function ProfileModal({
       alert("Please choose a different username.");
       return;
     }
+
     setLoading(true);
+
     try {
       await uploadProfile( username, bio, author);
       onProfileCreated();

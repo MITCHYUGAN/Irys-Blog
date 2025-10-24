@@ -41,6 +41,7 @@ const ProfileCheckWrapper = () => {
           onClose={() => {
             setShowModal(false);
             navigate("/"); // Navigate to home on modal close
+            setRefreshKey((prev) => prev + 1);
           }}
           onProfileCreated={handleProfileCreated}
         />

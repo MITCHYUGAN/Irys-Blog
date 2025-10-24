@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import { getAllPosts } from "@/lib/queriesGraphQL/allarticlesgraphql";
+import { getAllPosts } from "@/lib/queriesGraphQL/queryallposts";
 import { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,9 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "@/lib/irys";
-import { 
-  isBookmarked, 
-  // toggleBookmark 
+import {
+  isBookmarked,
+  // toggleBookmark
 } from "@/lib/queriesGraphQL/querybookmarks";
 import { useAccount } from "wagmi";
 
@@ -35,7 +35,9 @@ const AllArticles = () => {
   const [loading, setLoading] = useState(true);
   const { address } = useAccount();
   const navigate = useNavigate();
-  const [bookmarkStatus, setBookmarkStatus] = useState<{ [key: string]: boolean }>({}); // New: State for bookmark status
+  const [bookmarkStatus, setBookmarkStatus] = useState<{
+    [key: string]: boolean;
+  }>({}); // New: State for bookmark status
 
   // Modified: Fetch posts and bookmark status
   useEffect(() => {
@@ -45,7 +47,8 @@ const AllArticles = () => {
         const formattedPosts: Article[] = await Promise.all(
           fetchedPosts.map(async (post: any) => {
             const author =
-              post.tags.find((t: any) => t.name === "author")?.value || "Anonymous";
+              post.tags.find((t: any) => t.name === "author")?.value ||
+              "Anonymous";
             const profile = await getProfile(author);
             const plainText = post.content;
             return {
@@ -55,7 +58,9 @@ const AllArticles = () => {
               createdAt: post.timestamp,
               likes: 0,
               comments: 0,
-              readTime: `${Math.ceil(plainText.split(" ").length / 200)} min read`,
+              readTime: `${Math.ceil(
+                plainText.split(" ").length / 200
+              )} min read`,
               username: profile?.username,
             };
           })
@@ -163,14 +168,16 @@ const AllArticles = () => {
                     <span className="px-3 py-1 rounded-full text-xs font-medium bg-main/10 text-main border border-main/20">
                       Blog
                     </span>
-                   <Button
+                    <Button
                       variant="ghost"
                       size="sm"
                       className="text-gray-400 hover:text-main hover:bg-main/10 p-2 transition-colors"
                       // onClick={() => handleBookmarkClick(article.id)} // Modified: Use handleBookmarkClick
                     >
                       <Bookmark
-                        className={`w-4 h-4 ${bookmarkStatus[article.id] ? "fill-main" : ""}`} // Modified: Reflect bookmark status
+                        className={`w-4 h-4 ${
+                          bookmarkStatus[article.id] ? "fill-main" : ""
+                        }`} // Modified: Reflect bookmark status
                       />
                     </Button>
                   </div>

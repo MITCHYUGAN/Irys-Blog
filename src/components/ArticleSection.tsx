@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import DOMPurify from "dompurify";
-import { getAllPosts } from "@/lib/queriesGraphQL/allarticlesgraphql";
+import { getAllPosts } from "@/lib/queriesGraphQL/queryallposts";
 import { getProfile } from "@/lib/irys";
 import "react-quill/dist/quill.snow.css";
 import {
@@ -20,7 +20,7 @@ import {
   Bookmark,
 } from "lucide-react";
 import { Sidebar } from "./SideBar";
-import { getPost } from "@/lib/queriesGraphQL/graphql";
+import { getPost } from "@/lib/queriesGraphQL/querygetposts";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {

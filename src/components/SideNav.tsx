@@ -4,9 +4,32 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useDisconnect } from "wagmi";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import { X, Bookmark, Heart, MessageCircle, User } from "lucide-react";
+import {
+  X,
+  Bookmark,
+  Heart,
+  MessageCircle,
+  User,
+  Loader2,
+  RotateCw,
+  // Pointer,
+} from "lucide-react";
 import { Link } from "react-router-dom";
-import { getProfile } from "@/lib/irys";
+import { getIrysUploader, getProfile } from "@/lib/irys";
+import {
+  Dialog,
+  // DialogClose,
+  DialogContent,
+  DialogDescription,
+  // DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { Textarea } from "./ui/textarea";
+import { ethers, type AddressLike } from "ethers";
 
 interface SideNavProps {
   onToggle?: (isOpen: boolean) => void;
@@ -19,6 +42,11 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
   const [username, setUsername] = useState<string | null>(null);
   const [bio, setBio] = useState<string | null>(null);
   const { disconnect } = useDisconnect();
+  const [uploadBalance, setUploadBalance] = useState("Not found");
+  const [walletBalance, setWalletBalance] = useState("Not Found");
+  const [walletName, setWalletName] = useState("Not found");
+  const [amountToFund, setAmountToFUnd] = useState("0.001");
+  const [loading, setLoading] = useState(false);
 
   const fetchProfile = async () => {
     if (address) {
@@ -28,8 +56,96 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
     }
   };
 
+  const fetchUploadBalance = async () => {
+    const irys = await getIrysUploader();
+
+    setLoading(true)
+    try {
+      console.log("Getting upload balance...");
+      const balanceAtomic = await irys.getBalance();
+      const balance = irys.utils.fromAtomic(balanceAtomic).toString();
+      console.log("Balance", balance);
+      setUploadBalance(balance);
+    } catch (error) {
+      console.log("Error getting Upload Balance", error);
+    } finally {
+      setLoading(false)
+    }
+  };
+
+  const fetchWalletInfo = async () => {
+    console.log("Fetching wallet Balance...");
+
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+
+      // Fetch balance
+      const walletBalance = await provider.getBalance(address as AddressLike);
+      const walletBalanceEth = ethers.formatEther(walletBalance);
+
+      // Fetch name
+      const walletName = (await provider.getNetwork()).name;
+
+      setWalletBalance(walletBalanceEth);
+      setWalletName(walletName);
+
+      return walletBalanceEth;
+    } catch (error) {
+      console.log("Error while fetching Wallet balance", error);
+    }
+  };
+
+  const fundAccount = async (amount) => {
+    console.log("Funding...", amount);
+
+    if (!amount || amount <= 0) {
+      alert("Pls enter a valid amount");
+      return;
+    }
+
+    try {
+      // Compare wallet balance with amount to fund
+      const walletBalance = await fetchWalletInfo();
+
+      if (walletBalance < amount) {
+        alert("Not enough balance");
+        return;
+      }
+
+      try {
+        const irys = await getIrysUploader();
+
+        setLoading(true);
+        console.log("funding...");
+        const fundTx = await irys.fund(irys.utils.toAtomic(amount));
+        console.log(
+          `Successfully funded ${irys.utils.fromAtomic(fundTx.quantity)} ${
+            irys.token
+          }`
+        );
+        alert("Funded Successful");
+        // setLoading(false);
+        setAmountToFUnd("");
+      } catch (error) {
+        console.log("Error while funding", error);
+
+        if (error.message.includes("user rejected action")) {
+          alert("User Rejected transaction");
+        }
+      }
+
+      console.log("result", walletBalance);
+    } catch (error) {
+      console.log("Error when funding...", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
+    fetchUploadBalance();
+    fetchWalletInfo();
   }, [address]);
 
   // Update: Handle profile creation to refresh username
@@ -88,7 +204,7 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
               account,
               chain,
               openAccountModal,
-              // openChainModal,
+              openChainModal,
               mounted,
             }) => {
               const ready = mounted;
@@ -132,7 +248,8 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
                         </p>
                       </div>
 
-                      {/* <button
+                      {/* Button to show network */}
+                      <button
                         onClick={openChainModal}
                         className="w-full bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-main/50 rounded-lg px-4 py-3 flex items-center justify-between transition-all duration-200"
                       >
@@ -162,14 +279,192 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
                             strokeLinecap="round"
                           />
                         </svg>
-                      </button> */}
+                      </button>
                     </>
                   )}
                 </div>
               );
             }}
           </ConnectButton.Custom>
-          <div className="flex flex-col gap-3 w-full">
+
+          {/* Fund wallet */}
+          <div className="flex flex-col gap-5 w-full justify-between text-white">
+            <h1 className="">
+              Upload balance:{" "}
+              <span className="text-[10px] text-[#51ffd6] italic">
+                {uploadBalance}
+              </span>
+            </h1>
+
+            <div className="flex justify-between items-center">
+              <Button disabled={loading} onClick={fetchUploadBalance} variant="default">
+                Refresh
+                <RotateCw
+                  className="cursor-pointer w-[15px]"
+                />
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">Fund</Button>
+                </DialogTrigger>
+                <DialogContent className="bg-gray-800 border-0  text-white">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold">
+                      Fund your Account
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-400">
+                      Fund your upload account with custom testnet tokens
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-5  py-2">
+                    <div className="space-y-5  py-2">
+                      <div className="flex flex-col text-white">
+                        <h1>
+                          Current balance:{" "}
+                          <span className="text-[10px] text-[#51ffd6] italic">
+                            {walletBalance}
+                          </span>
+                        </h1>
+                        <h1>Current Network: {walletName}</h1>
+                      </div>
+                      <label className="block text-sm font-medium mb-1">
+                        Amount
+                      </label>
+                      <Input
+                        value={amountToFund}
+                        onChange={(e) => setAmountToFUnd(e.target.value)}
+                        className="bg-gray-900 border-gray-700 text-white"
+                        placeholder="0.0001"
+                      />
+                      {/* {usernameError && (
+              <p className="text-red-400 text-sm mt-1">{usernameError}</p>
+            )} */}
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <Button
+                        onClick={() => fundAccount(amountToFund)}
+                        disabled={loading}
+                        className="bg-main text-black cursor-pointer hover:bg-main/90"
+                      >
+                        {loading ? (
+                          <>
+                            Funding
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          </>
+                        ) : (
+                          "Fund"
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {/* <Dialog>
+              <form>
+                <DialogTrigger asChild>
+                  <Button variant="outline">Fund</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle className="text-white text-3xl">
+                      Fund Your Account
+                    </DialogTitle>
+                    <DialogDescription className="text-white">
+                      Fund your upload account with custom testnet tokens
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  Show network button
+                  <Dialog>
+                    <ConnectButton.Custom>
+                    {({
+                      account,
+                      chain,
+                      openChainModal,
+                      mounted,
+                    }) => {
+                      const ready = mounted;
+                      const connected = ready && account && chain;
+                      return (
+                        <div className="w-full flex flex-col items-center gap-6">
+                          {connected && (
+                            <>
+                              <button
+                                onClick={openChainModal}
+                                className="w-full bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-main/50 rounded-lg px-4 py-3 flex items-center justify-between transition-all duration-200"
+                              >
+                                <div className="flex items-center gap-3">
+                                  {chain.hasIcon && chain.iconUrl && (
+                                    <img
+                                      alt={chain.name ?? "Chain icon"}
+                                      src={chain.iconUrl || "/placeholder.svg"}
+                                      className="w-6 h-6"
+                                    />
+                                  )}
+                                  <span className="text-white font-medium font-display-inter">
+                                    {chain.name}
+                                  </span>
+                                </div>
+                                <svg
+                                  width="12"
+                                  height="7"
+                                  viewBox="0 0 12 7"
+                                  fill="none"
+                                  className="text-gray-400"
+                                >
+                                  <path
+                                    d="M1 1L6 6L11 1"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                  />
+                                </svg>
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      );
+                    }}
+                  </ConnectButton.Custom>
+                  </Dialog>
+
+                  <div className="grid gap-4">
+                    <div className="flex flex-col text-white">
+                      <h1>
+                        Current balance:{" "}
+                        <span className="text-[10px] text-[#51ffd6] italic">
+                          0.000000004
+                        </span>
+                      </h1>
+                      <h1>Current Network: Ethereum</h1>
+                    </div>
+                    <div className="grid gap-3">
+                      <Label htmlFor="amout" className="text-white">
+                        Amount
+                      </Label>
+                      <Input
+                        id="amount"
+                        name="Amount"
+                        defaultValue="0.0001"
+                        className="text-white"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button type="submit">Save changes</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </form>
+            </Dialog> */}
+          </div>
+
+          {/* Other profile actions */}
+          <div className="flex flex-col gap-3 mt-5 w-full">
             {/* Update: Use username for profile link */}
             <Link to={`/profile/@${username}`}>
               {/* <Link to={`/profile/@${username || address}`}> */}
@@ -182,13 +477,13 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
               </Button>
             </Link>
             {/* <Link to={"/me/bookmarks"}> */}
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
-              >
-                <Bookmark className="w-5 h-5 mr-3" />
-                Bookmarks <span className="text-[10px]">(Coming soon...)</span>
-              </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-white hover:bg-gray-800 hover:text-main transition-colors py-6 text-base font-display-inter"
+            >
+              <Bookmark className="w-5 h-5 mr-3" />
+              Bookmarks <span className="text-[10px]">(Coming soon...)</span>
+            </Button>
             {/* </Link> */}
             <Button
               variant="ghost"
@@ -209,6 +504,12 @@ const SideNav = ({ onToggle, onProfileCreated }: SideNavProps) => {
             Disconnect Profile
           </Button>
         </div>
+
+        {/* {fundModal && (
+        <Dialog>
+          
+        </Dialog>
+      )} */}
       </div>
     </div>
   );

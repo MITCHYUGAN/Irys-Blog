@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { getPostById } from "@/lib/queriesGraphQL/graphql";
+import { getPostById } from "@/lib/queriesGraphQL/querygetposts";
 import {
   ArrowRight,
   Bookmark,
@@ -60,7 +60,6 @@ const BookMarks = () => {
     fetchProfile();
   }, [address]);
 
-
   // Modified: Fetch bookmarks whenever bookmarkIds or address changes
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -113,7 +112,6 @@ const BookMarks = () => {
       //   setLoading(false);
       // }
 
-
       try {
         // Always fetch articles for current bookmarkIds
         const bookmarkPostPromises = bookmarkIds.map(async (postId: string) => {
@@ -135,16 +133,20 @@ const BookMarks = () => {
               createdAt: post.timestamp,
               likes: 0,
               comments: 0,
-              readTime: `${Math.ceil(plainText.split(" ").length / 200)} min read`,
+              readTime: `${Math.ceil(
+                plainText.split(" ").length / 200
+              )} min read`,
               username: profile?.username || authorTag,
-            } as Article;  // Explicitly assert as Article
+            } as Article; // Explicitly assert as Article
           } catch (error) {
             console.error(`Failed to fetch post ${postId}:`, error);
             return null;
           }
         });
 
-        const bookmarkPost = (await Promise.all(bookmarkPostPromises)).filter((post): post is Article => post !== null);
+        const bookmarkPost = (await Promise.all(bookmarkPostPromises)).filter(
+          (post): post is Article => post !== null
+        );
 
         setBookmarks(bookmarkPost);
         console.log("Bookmarks Rendered", bookmarkPost);
@@ -208,7 +210,6 @@ const BookMarks = () => {
   //   }
   // };
 
-
   // Modified: Handle remove bookmark with optimistic UI update
   const handleRemoveBookmark = async (postId: string) => {
     if (!address) {
@@ -244,7 +245,9 @@ const BookMarks = () => {
             createdAt: post.timestamp,
             likes: 0,
             comments: 0,
-            readTime: `${Math.ceil(post.content.split(" ").length / 200)} min read`,
+            readTime: `${Math.ceil(
+              post.content.split(" ").length / 200
+            )} min read`,
             username: profile?.username || authorTag,
           } as Article;
         } catch (error) {
@@ -253,7 +256,9 @@ const BookMarks = () => {
         }
       });
 
-      const bookmarkPost = (await Promise.all(bookmarkPostPromises)).filter((post): post is Article => post !== null);
+      const bookmarkPost = (await Promise.all(bookmarkPostPromises)).filter(
+        (post): post is Article => post !== null
+      );
       setBookmarks(bookmarkPost);
     }
   };

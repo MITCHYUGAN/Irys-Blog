@@ -14,17 +14,7 @@ import { Button } from "@/components/ui/button";
 import DOMPurify from "dompurify";
 import Navbar from "./Navbar";
 import { getProfile } from "@/lib/irys";
-// import getArticles from "@/lib/queryallarticles";
-import { getPostById } from "@/lib/queriesGraphQL/graphql";
-
-// Define the raw post type returned by getArticles()
-// interface RawPost {
-//   id: string;
-//   content: string;
-//   tags: { name: string; value: string }[];
-//   timestamp: number;
-//   [key: string]: any; // Allow additional fields for flexibility
-// }
+import { getPostById } from "@/lib/queriesGraphQL/querygetposts";
 
 interface Article {
   id: string;
@@ -43,19 +33,26 @@ export function PostDetail() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-    // Modified: Retry mechanism for fetching post
-  const fetchPostWithRetry = async (postId: string, retries = 3, delay = 2000): Promise<Article | null> => {
+  // Modified: Retry mechanism for fetching post
+  const fetchPostWithRetry = async (
+    postId: string,
+    retries = 3,
+    delay = 2000
+  ): Promise<Article | null> => {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         const foundPost = await getPostById(postId);
         if (!foundPost) {
-          console.warn(`Attempt ${attempt}: No post found for postId: ${postId}`);
+          console.warn(
+            `Attempt ${attempt}: No post found for postId: ${postId}`
+          );
           if (attempt === retries) return null;
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
         const author =
-          foundPost.tags.find((t: any) => t.name === "author")?.value || "Anonymous";
+          foundPost.tags.find((t: any) => t.name === "author")?.value ||
+          "Anonymous";
         const profile = await getProfile(author);
         return {
           id: foundPost.id,
@@ -64,11 +61,16 @@ export function PostDetail() {
           createdAt: foundPost.timestamp,
           likes: 0,
           comments: 0,
-          readTime: `${Math.ceil(foundPost.content.split(" ").length / 200)} min read`,
+          readTime: `${Math.ceil(
+            foundPost.content.split(" ").length / 200
+          )} min read`,
           username: profile?.username,
         };
       } catch (error) {
-        console.error(`Attempt ${attempt}: Error fetching post ${postId}:`, error);
+        console.error(
+          `Attempt ${attempt}: Error fetching post ${postId}:`,
+          error
+        );
         if (attempt === retries) return null;
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
@@ -76,7 +78,7 @@ export function PostDetail() {
     return null;
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchPost = async () => {
       if (!id) {
         console.warn("No post ID provided");
